@@ -1,0 +1,190 @@
+<d-article>
+%% contents.html
+<p>The Growing Neural Cellular Automata article <d-cite key="mordvintsev2020growing"></d-cite> demonstrated how a simple cellular automata (CAs) can self-organise  to generate complex shapes, all the while being resistant to perturbations. The models parameterizing the cells’ rules consist of few parameters and are end-to-end differentiable. In this work we show how a CA can be repurposed for a common task in machine learning - classification. We pose the question: <strong>can CAs</strong>, with living cells arranged in the shape of a certain digit,<strong> come to total agreement regarding what digit they compose?</strong></p>
+
+<p>Suppose there are agents arranged in a grid. They do not know what position of the grid they occupy, nor can they see or communicate any further than their immediate neighbors. They can also observe whether a neighbor is missing. Now suppose that these agents are arranged to form a large digit, as seen from above with a certain angle. Given that all the agents operate under the same rules, can they form a communication protocol such that after a number of iterations of communication <strong>all of the agents know which digit they are forming?</strong></p>
+<p>Furthermore, if some agents were to be removed and added to form a new digit from a preexisting one, would they be able to know which the new digit is?</p>
+<p>Because digits are not rotationally invariant (i.e. 6 is a rotation of 9), we assume the agents must be made aware of their orientation with respect to the grid. Therefore, while they do not know where they are, they know where up, down, left and right are.</p>
+
+
+<p>Introducing the Self-classifying MNIST digit task:</p>
+
+<p><figure style="width:500px">
+  <object data="figures/mnist_digits.png" type="image/png" style="width:100%"></object>
+</figure></p>
+
+<p>Each sample of the MNIST dataset consists of a 28x28 image with a single greyscale channel. The label is an integer in [0,9].</p>
+<p>The goal is for each cell residing in the digit to correctly output the label of the digit. We therefore make a distinction between alive and dead cells, by rescaling the grey channel to [0, 1] and treating a cell as alive if and only if their greyscale channel value is $> 0.1$.</p>
+
+<h2 id='model'>Model</h2>
+
+<p>The mode used in this article is a variation of the one used in Growing Cellular Automata article <d-cite key="mordvintsev2020growing"></d-cite>. For readers unfamiliar with its implementation, we refer to the model section in the work.</p>
+
+<p>The variations to the Growing CA model we apply hereby follow:</p>
+<h3>Target classes</h3>
+<p>The work in Growing CA had a label in form of an RGB image, with the loss applied to encourage the first three state channels of the cells to approximate this image. For our experiments, we treat the last ten channels of our cells as distribution over the likelihood of being a given digit. During inference, we perform an argmax over these channels to extract the label for each alive cell.</p>
+<h3>Aliveness and cell states</h3>
+<p>The concept of a cell being alive or dead in Growing CA was a function of its own alpha channel, as well as its neighbours. For our experiments, the distribution of alive and dead cells is explicitly encoded in the input data greyscale channel, and we perform computations for alive cells only, whose respective greyscale channel is $> 0.1$. While the greyscale channel is immutable, cells are made aware of the greyscale values for themselves and their neighborhood. Therefore, given 19 mutable cell states (9 general purpose states, 10 states for digit classification) and a fixed greyscale state, each cell perceives 19 + 1 states from the neighborhood, but outputs state changes for only 19 mutable states. </p>
+
+<h3>Perception</h3>
+<p>The Growing CA model made use of a fixed 3x3 convolution to extract the identity state and an estimate of the gradient of state in x and y coordinates (approximated by Sobel filters). We found that fully trainable 3x3 kernels outperform their fixed counterpart, and use trainable kernels in this work.</p>
+
+<p>Overall, the model remains small by standards of contemporary deep learning (<25k parameters). In this work, we are interested in demonstrating a novel approach to classification and do not attempt to maximise the validation accuracy of the model by increasing the number of parameters or other tuning, although we suspect this would be possible.</p>
+<h2 id='experiment-1'>Experiment 1: Self-classify, persist & mutate</h2>
+<p>This first experiment makes use of the results of the experiments discussed in the Growing CA article. We therefore train with a pool of initial samples, to allow the model to learn to persist, and perturb the converged states. The kind of perturbation performed in this work is, however, different. In the Experiment 3 of the Growing CA article, the authors erased random crops of the states to make the CAs resistant to destructive perturbations. In this work, our goal is of broader scope: while having regenerative properties is favourable, we also want our CAs to <strong>learn to understand when the underlying digits change</strong>.</p>
+
+<p>We accomplish that by applying random digit mutations: from an original digit and state, we sample a new digit and erase all cell states that are not present in both digits. This kind of mutation inherently teaches CAs to learn to regenerate. More importantly, it exposes CAs to training scenarios where all of the remaining alive cells are 90% of the time misclassifying the new digit. This in turn forces our CAs to learn to change their own classifications under certain circumstances.</p>
+
+<p>We use a pixel-wise (cell-wise) cross entropy loss  on the last ten channels of each pixel, applying it after letting the CA evolve for 20 steps.</p>
+<p><figure>
+    <video loop autoplay playsinline muted width="640px">
+      <source src="figures/ce_runs.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+</figure></p>
+
+<p>The video above shows the CA classifying a batch of digits for 400 steps, which are then mutated, and we let the system evolve and classify for a further 400 more steps.</p>
+
+<p>The results look promising overall, and we can see how our CA are able to recover from mutations. However, keen readers may notice there is often a lack of total agreement between the cells. Often, the majority of the digit is correctly classified, but some straggler cells here and there are still convinced they are part of a different digit, often switching back and forth in an oscillating pattern, creating a flickering effect in the visualization. Clearly, we want to encourage total agreement. The next experiment will try to do so.</p>
+<h2 id='experiment-2'>Experiment 2: Solving the flickery regression</h2>
+<p>A good starting point is to try and quantify the aforementioned behaviour. One metric we could track is the average percentage of cells who correctly classify the digits in a batch over time, before and after the digit being mutated:</p>
+<p><figure style="width:700px">
+  <object data="figures/ce_accuracy.png" type="image/png" style="width:100%"></object>
+</figure></p>
+<p>In the figure above, we show the average percentage of correctly classified cells across the entire test set, over 400 CA steps. After 200 steps, we randomly mutate the digit to a new one (causing the brief drop to 10% accuracy, as the cells re-organise).</p>
+
+<p>The above graph shows how the average cell accuracy starts from 10% to then quickly reach  96% at 80 steps and slowly decay by 1% over 100 steps. After the mutations occurring in step 200, the average cell accuracy restarts from 10% and does not appear to behave significantly differently from a fresh start. The slow decay is related to the lack of total agreement, but doesn’t capture it sufficiently well. We then introduce a new metric that tracks this behavior more accurately: total agreement. We define total agreement to be the proportion of digits in a training batch where all cells agree with each other on what digit they think they are.</p>
+<p><figure style="width:700px">
+  <object data="figures/ce_agreement.png" type="image/png" style="width:100%"></object>
+</figure></p>
+
+<p>In the figure above we see how total agreement starts at 0%, and then spikes up to roughly 78%, only to lose more than 10% agreement during the next 100 steps. Again, there does not appear to be a significantly different behaviour after mutation. This graph pinpoints an interesting phenomenon: the total agreement decreases significantly with time. This CA clearly is not stable at classifying digits in the long term - as time goes on, cells get less sure of themselves. Let us inspect the inner states of the CA to see if we can find some insight.</p>
+
+<p><figure style="width:700px">
+  <object data="figures/ce_magnitude.png" type="image/png" style="width:100%"></object>
+</figure></p>
+<p>The figure above shows the evolution over time of the average magnitude of each mutable state of active cells (solid line), and the average magnitude of the residual updates for the active cells firing at each timestamp (dotted line). We can observe two properties of this CA: the average magnitude of each cell’s internal states is unbounded, and the average magnitude of the residual updates does not change significantly over time. A desirable CA would likely stabilize its magnitude and learn to stop updating itself, once cells find an agreement.</p>
+
+
+<p>Let us try to address the aforementioned problems in two ways:</p>
+<p><strong>Change the loss to L2: </strong>Cross-entropy loss inherently encourages the correct class to continually be pushed indefinitely higher than other predicted classes. Having high magnitude in the classification channels may in turn lead the remaining channels to adapt to a high magnitude regime. This, combined with a lack of a shared reference range for the target labels may make it difficult for the digits to stabilize. We instead investigate changing the target to be a 28x28x10 dimensional tensor, where each channel is 1 for the target class, and 0 otherwise, and using a pixelwise L2 loss. Intuitively, the solution should be more stable since not only the outputs are now encouraged to stay close to the range $[0, 1]$, but a properly classified digit in a cell will have exactly one output set to 1, and the rest to 0. This should decrease the magnitude of all internal states and give an absolute reference range for the target labels. Absolute reference ranges can in turn aid with stabilising the internal states, once an agreement is reached.</p>
+<p><strong>Add noise to the residual</strong>: A key idea in most schemes of regularization is to add noise to make a classifier or model more robust.  We add noise sampled from a normal distribution with 0 mean and 0.02 standard-deviation to the residual. The noise is added before the random mask for asynchronous updates.</p>
+<p><figure>
+    <video loop autoplay playsinline muted width="640px">
+      <source src="figures/l2_runs.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+</figure></p>
+<p>The video above shows a batch of runs with the above augmentations in place. Qualitatively, the result looks much better - with less flickering and more total agreement. We now compare it to the original method:</p>
+<p><figure style="width:700px">
+  <object data="figures/ce_vs_l2_metrics.png" type="image/png" style="width:100%"></object>
+</figure></p>
+
+<table class="model_table" style="margin: 0px auto;">
+<thead>
+<tr>
+<th align="center">Model</th>
+<th align="center">Top accuracy</th>
+<th align="center">Accuracy @ 200 </th>
+<th align="center">Top agreement</th>
+<th align="center">Agreement @ 200</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">CE</td>
+<td align="center"><b>96.2 @ 80</b></td>
+<td align="center"><b>95.3</b></td>
+<td align="center">77.9 @ 80</td>
+<td align="center">66.2</td>
+</tr>
+<tr>
+<td align="center">L2</td>
+<td align="center">95.0 @ 95</td>
+<td align="center">94.7</td>
+<td align="center">85.5 @ 175</td>
+<td align="center">85.2</td>
+</tr>
+<tr>
+<td align="center">L2 + Noise</td>
+<td align="center">95.4 @ 65</td>
+<td align="center"><b>95.3</b></td>
+<td align="center"><b>88.2 @ 190</b></td>
+<td align="center"><b>88.1</b></td>
+</tr>
+</tbody>
+</table>
+
+
+<p>The figure and table above show that CE achieves the highest accuracy of all models at roughly 80 steps. However, the accuracy at 200 steps is the same as the L2 + Noise model. All models have degrading of metrics over time, but it is evident that the L2 + Noise is the most stable of them all. Moreover, the total agreement after 200 steps of L2 + Noise is 88%, more than 20% higher than the CE counterpart. One can extrapolate this degrading behavior observed continues after 200 steps, exacerbating the difference between CE and L2 models.</p>
+
+<p>Below we compare the internal states of the newly trained models and the one trained on Experiment 1:</p>
+<p><figure style="width:700px">
+  <object data="figures/magnitude_comparison.png" type="image/png" style="width:100%"></object>
+</figure></p>
+<p>The figure above shows how switching to an L2 loss successfully stabilizes the magnitude of the states, and how residual updates quickly converge to very small values after an agreement is about to be reached.</p>
+<h2 id='observed-robustness'>Observed robustness and limitations</h2>
+<p>The usage of random mutations during training was chosen to train a CA that would be responsive to changes. This is of critical importance while drawing, in order to allow live updates as different digits take shape (an eight being completed from a six, for instance). We encourage the readers to play with the interactive demo, and experience this for themselves. In this section, we want to showcase a few behaviours we found interesting.</p>
+<p><figure>
+    <div>
+<video loop autoplay playsinline muted width="320px">
+      <source src="figures/drawing_mutations.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    </div>
+   <div>
+  <object data="figures/horiz_legend.jpeg" type="image/png" style="width:320px"></object>
+   </div>
+</figure></p>
+
+<p>The video above shows how the CA is able to interactively adjust to our own writing, and to change classification based on changes on its shape.</p>
+
+<p><figure>
+<div>
+    <video loop autoplay playsinline muted width="320px">
+      <source src="figures/drawing_bad.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+</div>
+   <div>
+  <object data="figures/horiz_legend.jpeg" type="image/png" style="width:320px"></object>
+   </div>
+</figure></p>
+
+<p>Above, we can see our CA failing at classifying properly some variants of 1 and 9. This is likely due to MNIST training data not being sufficiently representative of all writing styles. We hypothesize that more varied and extensive datasets would help diminishing this problem.</p>
+
+<p><figure>
+<div>
+    <video loop autoplay playsinline muted width="320px">
+      <source src="figures/mnist_ablation.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+</div>
+   <div>
+  <object data="figures/horiz_legend.jpeg" type="image/png" style="width:320px"></object>
+   </div>
+</figure></p>
+<p>Lastly, we can see that, while the CA is surprisingly robust to some amount of unseen scaling of digits, it does not generalize well enough to work for arbitrary lengths and widths.</p>
+<h2 id='closing-notes'>Closing notes</h2>
+<p>This article serves as a proof of concept for how a simple self-organising system such as CA can be used for a task such as classification if trained end-to-end through backpropagation.</p>
+
+<p>The resulting model adapts to writing and erasing, and is surprisingly robust to certain ranges of digit stretching and brush widths. We hypothesize that concise self-organising models may be inherently robust to generalisations, and we encourage future work to test this hypothesis.</p>
+</d-article>
+<d-appendix>
+<h3>Related work</h3>
+<p>The related work for this article is entirely contained in the original Growing Neural Cellular Automata article <d-cite key="mordvintsev2020growing"></d-cite>. We refer to that article, and consider this article as follow-up work, to be read after the Growing Neural Cellular Automata article.</p>
+<h3>Acknowledgments</h3>
+<p>TBD</p>
+<h3>Author Contributions</h3>
+<p><strong>Research:</strong> Alexander came up with the Self-Organising Asynchronous Neural Cellular Automata model and Ettore contributed to its design. Alexander came up with the self-classifying MNIST digits task. Ettore designed and performed the experiments for this work.</p>
+
+<p><strong>Demos:</strong> Ettore, Alexander and Eyvind contributed to the tf.js demo.</p>
+
+<p><strong>Writing & Diagrams:</strong> Ettore outlined the structure of the article, created all the graphs and videos, and contributed to the content throughout. Eyvind contributed to the content throughout.</p>
+<h3>Implementation details</h3>
+<p><strong>TF.js playground.</strong> The demo shown in this work is made through Tensorflow.js (TF.js). In the colaboratory notebook described below, the reader can find customizable sizes of this playground, as well as more options for exploring pretrained models, trained without sampling from a state-preserving pool or mutation mechanisms, or with a CE loss.</p>
+
+<p><strong>Colaboratory Notebook.</strong> All of the experiments, images and videos in this article can be recreated using the single notebook referenced at the beginning of the article. Furthermore, more training configurations are easily available: training without pooling, without mutations, with a different loss, with or without residual noise. In the colab, the user can find pretrained models for all these configurations, and customizable TF.js demos where one can try any configuration.</p>
+<d-footnote-list></d-footnote-list>
+<d-citation-list></d-citation-list>
+<d-appendix>

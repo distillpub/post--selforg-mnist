@@ -15,6 +15,7 @@ export function mnistDemo(divId, canvasId) {
   const root = document.getElementById(divId);
   const $ = q => root.querySelector(q);
   const $$ = q => root.querySelectorAll(q);
+  const $$$ = q => document.documentElement.querySelectorAll(q);
   const mnistCanvas = document.createElement('canvas');
   const mnistCtx = mnistCanvas.getContext('2d');
 
@@ -141,6 +142,18 @@ export function mnistDemo(divId, canvasId) {
       eraser = !eraser;
       updateUI();
     };
+
+    $('#brushSlider').oninput = (e) => {
+      drawRadius = parseFloat(e.target.value)/2.0;
+      $('#radius').innerText = drawRadius;
+    };
+
+    $('#hueSlider').oninput = (e) => {
+        let hue = parseFloat(e.target.value);
+        $('#hueValue').innerText = hue;
+        console.log($$$('.color_heavy, filter'));
+        $$$('.color_heavy, figure').forEach(e => {e.style.filter = "hue-rotate(" + hue + "deg)"});
+    };
     console.log("loaded");
     $('#speed').onchange = updateUI;
     $('#speed').oninput = updateUI;
@@ -190,11 +203,6 @@ export function mnistDemo(divId, canvasId) {
     return consts;
   }
   
-
-  $('#brushSlider').oninput = (e) => {
-      drawRadius = parseFloat(e.target.value)/2.0;
-      $('#radius').innerText =drawRadius;
-  };
 
   let backgroundWhite = true;
 

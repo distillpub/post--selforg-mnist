@@ -39,3 +39,8 @@ d-figure > figure {
   top: 26px;
   left: -48px;
 }
+
+/* Color hue to help adjust colors for color blindness */
+.hue, figure {
+  filter: hue-rotate(255deg);
+}

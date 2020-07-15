@@ -166,8 +166,8 @@ export function mnistDemo(divId, canvasId) {
     // });
     $('#play').style.display = paused ? "inline" : "none";
     $('#pause').style.display = !paused ? "inline" : "none";
-    $('#eraser').style.display = !eraser ? "inline-block" : "none";
-    $('#pencil').style.display = eraser ? "inline-block" : "none";
+    $('#eraser').style.display = eraser ? "inline-block" : "none";
+    $('#pencil').style.display = !eraser ? "inline-block" : "none";
     const speed = parseInt($('#speed').value);
     $('#speedLabel').innerHTML = ['1/60 x', '1/10 x', '1/2 x', '1x', '2x', '4x', '<b>max</b>'][speed + 3];
   };

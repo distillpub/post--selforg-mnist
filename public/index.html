@@ -326,7 +326,7 @@
 
 @media (min-width: 1000px){
   #demo-controls {
-    grid-template-rows: auto 60px 80px 100px 1fr;
+    grid-template-rows: auto 60px 70px 70px 1fr 1fr;
   }
 }
 
@@ -538,6 +538,14 @@ input[type="radio"] {
   background-size: contain;
 }
 
+#paletteHint {
+  grid-column: 1/3;
+  color: rgba(0, 0, 0, 0.6);
+  line-height: 1.4em;
+  user-select: text;
+  font-size: 75%;
+}
+
 </style>
 
 <div class="l-body-outset grid" id="demo">
@@ -573,8 +581,8 @@ input[type="radio"] {
             </div>
         </div>
         <div id="eraser-pencil" style="text-align: center">
-          <div id="eraser"></div>
-          <div id="pencil" style="display: none;"></div>
+          <div id="eraser" style="display: none;"></div>
+          <div id="pencil" ></div>
         </div>
         <div class="slidecontainer">
           Brush size:
@@ -589,6 +597,7 @@ input[type="radio"] {
           <input type="range" min="0" max="360" value="0" class="slider" id="hueSlider">
           <div id="status">(<span id='hueValue'>0</span> deg)</div>
         </div>
+        <div id="paletteHint">This article relies on using color to demonstrate classifications. If you have trouble distinguishing the colours of digits in the above legend, please try and adjust the slider above to see if there is an alternative colour palette for you. The chosen palette will propagate throughout the article.</div>
         <div id="colab-hero-div">
           <a href="https://colab.research.google.com/github/google-research/self-organising-systems/blob/master/notebooks/mnist_ca.ipynb" class="colab-root" id="colab-hero">Try in a <span class="colab-span">Notebook</span></a>
         </div>
@@ -628,7 +637,7 @@ input[type="radio"] {
 
 <p>Introducing the Self-classifying MNIST digit task:</p>
 
-<p><figure style="width:500px">
+<p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:500px;">
   <object data="figures/mnist_digits.png" type="image/png" style="width:100%"></object>
 </figure></p>
 
@@ -667,19 +676,19 @@ input[type="radio"] {
 <p>The results look promising overall, and we can see how our CA are able to recover from mutations. However, keen readers may notice there is often a lack of total agreement between the cells. Often, the majority of the digit is correctly classified, but some straggler cells here and there are still convinced they are part of a different digit, often switching back and forth in an oscillating pattern, creating a flickering effect in the visualization. Clearly, we want to encourage total agreement. The next experiment will try to do so.</p>
 <h2 id='experiment-2'>Experiment 2: Solving the flickery regression</h2>
 <p>A good starting point is to try and quantify the aforementioned behaviour. One metric we could track is the average percentage of cells who correctly classify the digits in a batch over time, before and after the digit being mutated:</p>
-<p><figure style="width:700px">
+<p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width: 700px">
   <object data="figures/ce_accuracy.png" type="image/png" style="width:100%"></object>
 </figure></p>
 <p>In the figure above, we show the average percentage of correctly classified cells across the entire test set, over 400 CA steps. After 200 steps, we randomly mutate the digit to a new one (causing the brief drop to 10% accuracy, as the cells re-organise).</p>
 
 <p>The above graph shows how the average cell accuracy starts from 10% to then quickly reach  96% at 80 steps and slowly decay by 1% over 100 steps. After the mutations occurring in step 200, the average cell accuracy restarts from 10% and does not appear to behave significantly differently from a fresh start. The slow decay is related to the lack of total agreement, but doesn’t capture it sufficiently well. We then introduce a new metric that tracks this behavior more accurately: total agreement. We define total agreement to be the proportion of digits in a training batch where all cells agree with each other on what digit they think they are.</p>
-<p><figure style="width:700px">
+<p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
   <object data="figures/ce_agreement.png" type="image/png" style="width:100%"></object>
 </figure></p>
 
 <p>In the figure above we see how total agreement starts at 0%, and then spikes up to roughly 78%, only to lose more than 10% agreement during the next 100 steps. Again, there does not appear to be a significantly different behaviour after mutation. This graph pinpoints an interesting phenomenon: the total agreement decreases significantly with time. This CA clearly is not stable at classifying digits in the long term - as time goes on, cells get less sure of themselves. Let us inspect the inner states of the CA to see if we can find some insight.</p>
 
-<p><figure style="width:700px">
+<p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
   <object data="figures/ce_magnitude.png" type="image/png" style="width:100%"></object>
 </figure></p>
 <p>The figure above shows the evolution over time of the average magnitude of each mutable state of active cells (solid line), and the average magnitude of the residual updates for the active cells firing at each timestamp (dotted line). We can observe two properties of this CA: the average magnitude of each cell’s internal states is unbounded, and the average magnitude of the residual updates does not change significantly over time. A desirable CA would likely stabilize its magnitude and learn to stop updating itself, once cells find an agreement.</p>
@@ -695,7 +704,7 @@ input[type="radio"] {
     </video>
 </figure></p>
 <p>The video above shows a batch of runs with the above augmentations in place. Qualitatively, the result looks much better - with less flickering and more total agreement. We now compare it to the original method:</p>
-<p><figure style="width:700px">
+<p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
   <object data="figures/ce_vs_l2_metrics.png" type="image/png" style="width:100%"></object>
 </figure></p>
 
@@ -738,7 +747,7 @@ input[type="radio"] {
 <p>The figure and table above show that CE achieves the highest accuracy of all models at roughly 80 steps. However, the accuracy at 200 steps is the same as the L2 + Noise model. All models have degrading of metrics over time, but it is evident that the L2 + Noise is the most stable of them all. Moreover, the total agreement after 200 steps of L2 + Noise is 88%, more than 20% higher than the CE counterpart. One can extrapolate this degrading behavior observed continues after 200 steps, exacerbating the difference between CE and L2 models.</p>
 
 <p>Below we compare the internal states of the newly trained models and the one trained on Experiment 1:</p>
-<p><figure style="width:700px">
+<p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
   <object data="figures/magnitude_comparison.png" type="image/png" style="width:100%"></object>
 </figure></p>
 <p>The figure above shows how switching to an L2 loss successfully stabilizes the magnitude of the states, and how residual updates quickly converge to very small values after an agreement is about to be reached.</p>

@@ -13,7 +13,7 @@
   <object data="figures/mnist_digits.png" type="image/png" style="width:100%"></object>
 </figure></p>
 
-<p>Each sample of the MNIST dataset consists of a 28x28 image with a single greyscale channel. The label is an integer in [0,9].</p>
+<p>Each sample of the MNIST dataset <d-cite key="lecun_mnist"></d-cite> consists of a 28x28 image with a single greyscale channel. The label is an integer in [0,9].</p>
 <p>The goal is for each cell residing in the digit to correctly output the label of the digit. We therefore make a distinction between alive and dead cells, by rescaling the grey channel to [0, 1] and treating a cell as alive if and only if their greyscale channel value is $> 0.1$. Each digit label is paired with a random color which is used for visualizing the current classification of each alive cell. Some readers may have difficulties with distinguishing all of the label colors; in this case, we recommend choosing a suitable color palette from the demo section on top of the article.</p>
 <h2 id='model'>Model</h2>
 
@@ -178,7 +178,7 @@
 <p>This article is follow-up work of the Growing Neural Cellular Automata article in this thread <d-cite key="mordvintsev2020growing"></d-cite>, and it is meant to be read after the latter. In this article, we avoid repeating work related to both articles, and we refer to the Growing Neural Cellular Automata article for the model and biological backgrounds.</p>
 
 <p><strong>MNIST and CA</strong></p>
-<p>TODO add MNIST specific background.</p>
+<p>Since CAs are easily applied to two dimensional grids, many researchers wondered if they could use them somehow to classify the MNIST dataset <d-cite key="lecun_mnist"></d-cite>. Work we aware of combines CAs with Reservoir Computing <d-cite key="alej2018reservoir, alej2020reservoir"></d-cite>, Boltzmann Machines <d-cite key="matsubara2018"></d-cite>, Evolutionary Strategies <d-cite key="oliveira2008"></d-cite>, and ensemble methods <d-cite key="WALI201877, jastrzebska2017"></d-cite>. To the best of our knowledge, we are the first to train end-to-end differentiable Neural CAs for classification purposes, and we are the first to introduce the Self-classifying variant of MNIST, where each pixel in the digit needs to coordinate locally in order to understand their label.</p>
 <h2 id='discussion'>Discussion</h2>
 <h3>Embryogenetic Modeling</h3>
 <p><figure>

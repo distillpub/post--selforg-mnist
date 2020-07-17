@@ -15,7 +15,6 @@
 
 <p>Each sample of the MNIST dataset consists of a 28x28 image with a single greyscale channel. The label is an integer in [0,9].</p>
 <p>The goal is for each cell residing in the digit to correctly output the label of the digit. We therefore make a distinction between alive and dead cells, by rescaling the grey channel to [0, 1] and treating a cell as alive if and only if their greyscale channel value is $> 0.1$. Each digit label is paired with a random color which is used for visualizing the current classification of each alive cell. Some readers may have difficulties with distinguishing all of the label colors; in this case, we recommend choosing a suitable color palette from the demo section on top of the article.</p>
-
 <h2 id='model'>Model</h2>
 
 <p>The mode used in this article is a variation of the one used in Growing Cellular Automata article <d-cite key="mordvintsev2020growing"></d-cite>. For readers unfamiliar with its implementation, we refer to the model section in the work.</p>
@@ -130,7 +129,7 @@
       Your browser does not support the video tag.
     </video>
 </figure></p>
-<p>Here we show the resulting dynamics of the internal states for the final model. TODO comment.</p>
+<p>Here we show the resulting dynamics of the internal states for the final model. For visualization purposes, the internal state values are squashed with an arctan function. The states converge to stable configurations very quickly and the state channels are generally continuous to their neighbors, resulting in spatial gradients. Applying digit mutations causes the CA to readapt steadily to the new shape and classification.</p>
 <h2 id='observed-robustness'>Observed robustness and limitations</h2>
 <h3>Adaptation to mutation</h3>
 <p>The usage of random mutations during training was chosen to train a CA that would be responsive to changes. This is of critical importance while drawing, in order to allow live updates as different digits take shape (an eight being completed from a six, for instance). We encourage the readers to play with the interactive demo, and experience this for themselves. In this section, we want to showcase a few behaviours we found interesting.</p>
@@ -175,14 +174,25 @@
    </div>
 </figure></p>
 <p>As hinted before, the resulting CA is translation invariant. Above we show how the model is also scaling invariant for out-of-training scaling of digits up to a certain point. Alas, it does not generalize well enough to work for arbitrary lengths and widths.</p>
-<h2 id='closing-notes'>Closing notes</h2>
+<h2 id='related-work'>Related work</h2>
+<p>This article is follow-up work of the Growing Neural Cellular Automata article in this thread <d-cite key="mordvintsev2020growing"></d-cite>, and it is meant to be read after the latter. In this article, we avoid repeating work related to both articles, and we refer to the Growing Neural Cellular Automata article for the model and biological backgrounds.</p>
+
+<p><strong>MNIST and CA</strong></p>
+<p>TODO add MNIST specific background.</p>
+<h2 id='discussion'>Discussion</h2>
+<h3>Embryogenetic Modeling</h3>
+<p><figure>
+    <video loop autoplay playsinline muted width:100%>
+      <source src="figures/mnist_chimeras.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+</figure></p>
+<h3>Engineering and Machine learning</h3>
 <p>This article serves as a proof of concept for how a simple self-organising system such as CA can be used for a task such as classification if trained end-to-end through backpropagation.</p>
 
 <p>The resulting model adapts to writing and erasing, and is surprisingly robust to certain ranges of digit stretching and brush widths. We hypothesize that concise self-organising models may be inherently robust to generalisations, and we encourage future work to test this hypothesis.</p>
 </d-article>
 <d-appendix>
-<h3>Related work</h3>
-<p>The related work for this article is entirely contained in the original Growing Neural Cellular Automata article <d-cite key="mordvintsev2020growing"></d-cite>. We refer to that article, and consider this article as follow-up work, to be read after the Growing Neural Cellular Automata article.</p>
 <h3>Acknowledgments</h3>
 <p>We thank Zhitao Gong, Sam Greydanus, Alex Groznykh, Michael Levin, NIck Moran, Peter Whidden for their valuable conversations and feedback.</p>
 <h3>Author Contributions</h3>

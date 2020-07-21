@@ -166,8 +166,8 @@ export function mnistDemo(divId, canvasId) {
     // });
     $('#play').style.display = paused ? "inline" : "none";
     $('#pause').style.display = !paused ? "inline" : "none";
-    $('#eraser').style.display = eraser ? "inline-block" : "none";
-    $('#pencil').style.display = !eraser ? "inline-block" : "none";
+    $('#eraser').style.filter = !eraser ? "grayscale()" : "";
+    $('#pencil').style.filter = eraser ? "grayscale()" : "";
     const speed = parseInt($('#speed').value);
     $('#speedLabel').innerHTML = ['1/60 x', '1/10 x', '1/2 x', '1x', '2x', '4x', '<b>max</b>'][speed + 3];
   };
@@ -288,7 +288,7 @@ export function mnistDemo(divId, canvasId) {
       const circle = (x, y, r, e) => {
           draw_ctx.beginPath();
 
-          const drawRadius = ((e.shiftKey || eraser) ? 5. * r : r) / 3.;
+          const drawRadius = ((e.shiftKey || eraser) ? 5. * r : r) / 2.;
 
           draw_ctx.arc(x, y, drawRadius, 0, 2 * Math.PI, false);
           draw_ctx.fillStyle = "#ff0000";
@@ -322,6 +322,7 @@ export function mnistDemo(divId, canvasId) {
       let lastX = 0;
       let lastY = 0;
 
+
       canvas.onmousedown = e => {
           const [x, y] = getClickPos(e);
           lastX = x;
@@ -332,6 +333,8 @@ export function mnistDemo(divId, canvasId) {
           const [x, y] = getClickPos(e);
           if (e.buttons == 1) {
               line(lastX,lastY, x,y,drawRadius, e);
+              // otherwise we get a jagged edge of the line visible
+              circle(x, y, drawRadius, e);
           }
           lastX = x;
           lastY = y;
@@ -349,10 +352,13 @@ export function mnistDemo(divId, canvasId) {
         e.preventDefault();
           for (const t of e.touches) {
             const [x, y] = getTouchPos(t);
-            console.log([x,y]);
-            line(lastX,lastY, x,y,drawRadius, e);
-            lastX = x;
-            lastY = y;
+            // if multitouch just paint a cricle anywhere we have fingers
+            if (e.touches.length == 1){
+              line(lastX,lastY, x,y,drawRadius, e);
+              lastX = x;
+              lastY = y;
+            }
+            circle(x, y, drawRadius, e);
           }
         });
 

@@ -79,7 +79,7 @@
   <object data="figures/ce_vs_l2_metrics.png" type="image/png" style="width:100%"></object>
 </figure></p>
 
-<table class="model_table" style="margin: 0px auto; width:100%">
+<div id=accTable style=overflow-x:scroll;grid-column:page;max-width:700px;margin-left:auto;margin-right:auto;><table class=model_table>
 <thead>
 <tr>
 <th align="center">Model</th>
@@ -113,6 +113,7 @@
 </tr>
 </tbody>
 </table>
+</div>
 
 
 <p>The figure and table above show that CE achieves the highest accuracy of all models at roughly 80 steps. However, the accuracy at 200 steps is the same as the L2 + Noise model. Even though either accuracy and agreement degrade over time for all models, it is evident that the L2 + Noise is the most stable of them all. Moreover, the total agreement after 200 steps of L2 + Noise is 88%, more than 20% higher than the CE counterpart. One can extrapolate this degrading behavior observed continues after 200 steps, exacerbating the difference between CE and L2 models.</p>

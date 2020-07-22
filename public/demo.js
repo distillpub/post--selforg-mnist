@@ -138,8 +138,13 @@ export function mnistDemo(divId, canvasId) {
       paused = !paused;
       updateUI();
     };
-    $('#eraser-pencil').onclick = () => {
-      eraser = !eraser;
+    $('#eraser').onclick = () => {
+      eraser = true;
+      updateUI();
+    };
+
+    $('#pencil').onclick = () => {
+      eraser = false;
       updateUI();
     };
 
@@ -166,10 +171,10 @@ export function mnistDemo(divId, canvasId) {
     // });
     $('#play').style.display = paused ? "inline" : "none";
     $('#pause').style.display = !paused ? "inline" : "none";
-    $('#eraser').style.filter = !eraser ? "grayscale()" : "";
-    $('#pencil').style.filter = eraser ? "grayscale()" : "";
+    $('#eraser').style.filter = !eraser ? "grayscale() opacity(0.7)" : "";
+    $('#pencil').style.filter = eraser ? "grayscale() opacity(0.7)" : "";
     const speed = parseInt($('#speed').value);
-    $('#speedLabel').innerHTML = ['1/60 x', '1/10 x', '1/2 x', '1x', '2x', '4x', '<b>max</b>'][speed + 3];
+    $('#speedLabel').innerHTML = ['1/60 x', '1/10 x', '1/2 x', '1 x', '2 x', '4 x', '<b>max</b>'][speed + 3];
   };
 
   const parseConsts = model_graph => {

@@ -321,6 +321,8 @@ export function mnistDemo(divId, canvasId) {
 
       let lastX = 0;
       let lastY = 0;
+      let lastTouchId = 0;
+      let lastTouchList = null;
 
 
       canvas.onmousedown = e => {
@@ -342,24 +344,27 @@ export function mnistDemo(divId, canvasId) {
 
       canvas.addEventListener("touchstart", e => {
         e.preventDefault();
-        const [x, y] = getTouchPos(e.changedTouches[0]);
-        lastX = x;
-        lastY = y;
-        circle(x,y,drawRadius, e);
+        for (const t of e.changedTouches) {
+          const [x, y] = getTouchPos(t);
+          circle(x,y,drawRadius, e);
+        }
+        lastTouchList = e.touches;
       });
 
       canvas.addEventListener("touchmove", e => {
         e.preventDefault();
-          for (const t of e.touches) {
+          for (const t of e.changedTouches) {
             const [x, y] = getTouchPos(t);
-            // if multitouch just paint a cricle anywhere we have fingers
-            if (e.touches.length == 1){
-              line(lastX,lastY, x,y,drawRadius, e);
-              lastX = x;
-              lastY = y;
+            for (const tOld of lastTouchList){
+              if (t.identifier == tOld.identifier){
+                const [xOld, yOld] = getTouchPos(tOld);
+                line(xOld, yOld, x,y,drawRadius, e);
+              }
             }
+            // if multitouch just paint a cricle anywhere we have fingers
             circle(x, y, drawRadius, e);
           }
+          lastTouchList = e.touches; 
         });
 
     

@@ -39,6 +39,7 @@
 
 <p>We use a pixel-wise (cell-wise) cross entropy loss  on the last ten channels of each pixel, applying it after letting the CA evolve for 20 steps.</p>
 <p><figure>
+    <div class="vidoverlay"></div>
     <video loop playsinline muted width="640px">
       <source src="figures/ce_runs.mp4" type="video/mp4">
       Your browser does not support the video tag.
@@ -72,6 +73,7 @@
 <p><strong>Change the loss to L2: </strong>Cross-entropy loss inherently encourages the correct class to continually be pushed indefinitely higher than other predicted classes. Having high magnitude in the classification channels may in turn lead the remaining channels to adapt to a high magnitude regime. This, combined with a lack of a shared reference range for the target labels may make it difficult for the digits to stabilize. We instead investigate changing the target to be a 28x28x10 dimensional tensor, where each channel is 1 for the target class, and 0 otherwise, and using a pixelwise L2 loss. Intuitively, the solution should be more stable since not only the outputs are now encouraged to stay close to the range $[0, 1]$, but a properly classified digit in a cell will have exactly one output set to 1, and the rest to 0. This should decrease the magnitude of all internal states and give an absolute reference range for the target labels. Absolute reference ranges can in turn aid with stabilising the internal states, once an agreement is reached.</p>
 <p><strong>Add noise to the residual</strong>: A key idea in most schemes of regularization is to add noise to make a classifier or model more robust.  We add noise sampled from a normal distribution with 0 mean and 0.02 standard-deviation to the residual. The noise is added before the random mask for asynchronous updates.</p>
 <p><figure>
+    <div class="vidoverlay"></div>
     <video loop playsinline muted width="640px">
       <source src="figures/l2_runs.mp4" type="video/mp4">
       Your browser does not support the video tag.
@@ -128,6 +130,7 @@
 <p>The figure above shows how switching to an L2 loss successfully stabilizes the magnitude of the states, and how residual updates quickly converge to very small values after an agreement is about to be reached.</p>
 
 <p><figure>
+    <div class="vidoverlay"></div>
     <video loop playsinline muted width:100%>
       <source src="figures/l2n_horiz_states.mp4" type="video/mp4">
       Your browser does not support the video tag.
@@ -138,6 +141,7 @@
 <h3>Adaptation to mutation</h3>
 <p>The usage of random mutations during training was chosen to train a CA that would be responsive to changes. Biologically, this helps understand the insensitivity of some large-scale anatomical control mechanisms to mutations - for example, planaria continuously accumulate mutations over millennia of somatic inheritance but still regenerate the correct morphology 100% of the time in nature (and exhibit no genetic strains with new morphologies) <d-cite key="LEVIN2019125"></d-cite>. This is of critical importance while drawing, in order to allow live updates as different digits take shape (an eight being completed from a six, for instance). We encourage the readers to play with the interactive demo, and experience this for themselves. In this section, we want to showcase a few behaviours we found interesting.</p>
 <p><figure>
+    <div class="vidoverlay"></div>
     <div>
 <video loop autoplay playsinline muted width="320px">
       <source src="figures/drawing_mutations.mp4" type="video/mp4">
@@ -153,6 +157,7 @@
 <h3>Robustness to out-of-training configurations</h3>
 <p>In the field of Machine Learning, it is of particular interest to see how trained models behave with out-of-training data. In the experiments sections of this article, we have already evaluated our model on the test set to make sure it does not overfit to the train set. In this section, we go further and see how much we can vary shapes of digits until the model is no longer capable of classifying digits correctly. Each type of model contains sets of inductive biases that render them more or less robust to certain types of out-of-training situations. Our model can be implemented by convolutional layers and we therefore expect them to share some key properties, such as translation invariance. Moreover, the local and self-organising nature of this model may showcase other interesting properties. Biology offers examples of repairing to novel configurations: 2-headed planaria, once created, regenerate to this new configuration <d-cite key="OVIEDO2010188"></d-cite> which was not evolutionarily present in their “training set”.</p>
 <p><figure>
+    <div class="vidoverlay"></div>
 <div>
     <video loop autoplay playsinline muted width="320px">
       <source src="figures/drawing_bad.mp4" type="video/mp4">
@@ -167,6 +172,7 @@
 <p>Above, we can see our CA failing at classifying properly some variants of 1 and 9. This is likely due to MNIST training data not being sufficiently representative of all writing styles. We hypothesize that more varied and extensive datasets would help diminishing this problem. Interestingly, the CAs often converge to oscillating attractors in these situations. This property could not arise from static classifiers such as traditional convolutional neural networks.</p>
 
 <p><figure>
+    <div class="vidoverlay"></div>
 <div>
     <video loop autoplay playsinline muted width="320px">
       <source src="figures/mnist_ablation.mp4" type="video/mp4">

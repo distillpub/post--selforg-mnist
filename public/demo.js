@@ -148,9 +148,13 @@ export function mnistDemo(divId, canvasId) {
       updateUI();
     };
 
+    $('#bin').onclick = () => {
+      state.assign(tf.zeros([1, D, D, numChannel]));
+    };
+
     $('#brushSlider').oninput = (e) => {
       drawRadius = parseFloat(e.target.value)/2.0;
-      $('#radius').innerText = drawRadius;
+      updateUI();
     };
 
     $('#hueSlider').oninput = (e) => {
@@ -175,6 +179,7 @@ export function mnistDemo(divId, canvasId) {
     $('#pencil').style.filter = eraser ? "grayscale() opacity(0.7)" : "";
     const speed = parseInt($('#speed').value);
     $('#speedLabel').innerHTML = ['1/60 x', '1/10 x', '1/2 x', '1 x', '2 x', '4 x', '<b>max</b>'][speed + 3];
+    $('#radius').innerText = ( (eraser) ? drawRadius * 5.0 : drawRadius);
   };
 
   const parseConsts = model_graph => {

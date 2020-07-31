@@ -12,7 +12,7 @@
   <object data="figures/mnist_digits.png" type="image/png" style="width:100%"></object>
 <figcaption style="">
 A visualisation of a random sample of digits from MNIST, each shaded by the colour corresponding its label.
-  </figcaption>
+</figcaption>
 </figure></p>
 
 <p>Each sample of the MNIST dataset <d-cite key="lecun_mnist"></d-cite> consists of a 28x28 image with a single monochrome channel - classically displayed in greyscale. The label is an integer in $[0,9]$.</p>
@@ -47,6 +47,8 @@ A visualisation of a random sample of digits from MNIST, each shaded by the colo
       <source src="figures/ce_runs.mp4#t=0.1" type="video/mp4">
       Your browser does not support the video tag.
     </video>
+<figcaption style="">
+A first attempt at having the neural CAs classify digits. Each digit is a separate evolution of the neural CA, with the visualisations collated. Halfway through, the underlying digit is swapped for a new one - an event we refer to as a "perturbation".</figcaption>
 </figure></p>
 
 <p>The video above shows the CA classifying a batch of digits for 200 steps, which are then mutated, and we let the system evolve and classify for a further 200 more steps.</p>

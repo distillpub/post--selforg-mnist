@@ -157,6 +157,13 @@ export function mnistDemo(divId, canvasId) {
       updateUI();
     };
 
+    $$$('.vidoverlay').forEach(e => e.onclick = () => {
+      e.parentNode.getElementsByTagName('video')[0].onended = v => {e.style.opacity = 0.8; v.target.load();};
+      e.parentNode.getElementsByTagName('video')[0].currentTime = 0.0;
+      e.parentNode.getElementsByTagName('video')[0].play();
+      e.style.opacity = '0';
+    })
+
     $('#hueSlider').oninput = (e) => {
         let hue = parseFloat(e.target.value);
         $('#hueValue').innerText = hue;

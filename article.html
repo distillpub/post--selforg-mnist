@@ -48,7 +48,7 @@ A visualisation of a random sample of digits from MNIST, each shaded by the colo
       Your browser does not support the video tag.
     </video>
 <figcaption style="">
-A first attempt at having the neural CAs classify digits. Each digit is a separate evolution of the neural CA, with the visualisations collated. Halfway through, the underlying digit is swapped for a new one - an event we refer to as a "perturbation".</figcaption>
+A first attempt at having the neural CAs classify digits. Each digit is a separate evolution of the neural CA, with the visualisations collated. Halfway through, the underlying digit is swapped for a new one - a "perturbation".</figcaption>
 </figure></p>
 
 <p>The video above shows the CA classifying a batch of digits for 200 steps, which are then mutated, and we let the system evolve and classify for a further 200 more steps.</p>
@@ -57,6 +57,8 @@ A first attempt at having the neural CAs classify digits. Each digit is a separa
 <h2 id='experiment-2'>Experiment 2: Solving the flickery regression</h2>
 <p>Quantifying a qualitative issue is the first step to solving it. We propose the metric to track - <strong>average cell accuracy</strong>: defined as mean percentage of cells which have a correct output. We track this metric both before and after the digit is mutated.<figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width: 700px">
   <object data="figures/ce_accuracy.png" type="image/png" style="width:100%"></object>
+<figcaption style="">
+Average accuracy across the cells in a digit over time.</figcaption>
 </figure></p>
 <p>In the figure above, we show the mean percentage of correctly classified cells, across the test set, over 400 steps. At step 200, we randomly mutate the digit. Accordingly, we see a brief drop in accuracy as the cells re-organise and eventually come to agreement on what the new digit may be.</p>
 
@@ -65,12 +67,16 @@ A first attempt at having the neural CAs classify digits. Each digit is a separa
 <p>Instead of looking at mean agreement perhaps measuring <strong>total agreement</strong> would be more helpful. We define total agreement as the percentage of samples from the training batch where all the cells output the same label. </p>
 <p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
   <object data="figures/ce_agreement.png" type="image/png" style="width:100%"></object>
+<figcaption style="">
+Average total agreement between cells across the training samples in MNIST, over time.</figcaption>
 </figure></p>
 
 <p>This metric better captures the issues we are seeing. We see how total agreement starts at zero percent, and then spikes up to roughly 78%, only to lose more than 10% agreement over the next 100 steps. Again, there does not appear to be significantly different behaviour after mutation. Our model is clearly not only unstable in the short term, exhibiting flickering, but also it does not appear stable during longer timescales. As time goes on, cells get less sure of themselves. Let us inspect the inner states of the CA to see if we gain insight.</p>
 
 <p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
   <object data="figures/ce_magnitude.png" type="image/png" style="width:100%"></object>
+<figcaption style="">
+Average magnitude of the state channels in cells over cells, over time.</figcaption>
 </figure></p>
 <p>The figure above shows the evolution, over time, of the average magnitude of the state values of active cells (solid line), and the average magnitude of the residual updates for the active cells firing at each timestamp (dotted line). We can observe two important properties of our model: the average magnitude of each cell’s internal states looks suspiciously like it’s somewhat unbounded in its growth (at least in the time-scales in our experiments), and the average magnitude of the residual updates does not change significantly over time. We theorize a successful CA model should stabilize the magnitude of its internal states once cells find agreement.</p>
 
@@ -85,10 +91,15 @@ A first attempt at having the neural CAs classify digits. Each digit is a separa
       <source src="figures/l2_runs.mp4#t=0.1" type="video/mp4">
       Your browser does not support the video tag.
     </video>
+<figcaption style="">
+Neural CA trained with $L_2$ loss, exhibiting less instability after converging to a label.</figcaption>
 </figure></p>
 <p>The video above shows a batch of runs with the augmentations in place. Qualitatively, the result looks much better - less flickering and more total agreement. We now compare it to the original method using the metrics we defined.</p>
 <p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
   <object data="figures/ce_vs_l2_metrics.png" type="image/png" style="width:100%"></object>
+<figcaption style="">
+Comparison of average accuracy and total agreement 
+ when using cross-entropy and when using $L_2$ loss.</figcaption>
 </figure></p>
 
 <div id=accTable style=overflow-x:scroll;grid-column:page;max-width:700px;margin-left:auto;margin-right:auto;><table class=model_table>
@@ -133,6 +144,10 @@ A first attempt at having the neural CAs classify digits. Each digit is a separa
 <p>Below we compare the internal states of the augmented model versus the original.</p>
 <p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
   <object data="figures/magnitude_comparison.png" type="image/png" style="width:100%"></object>
+<figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
+  <object data="figures/ce_vs_l2_metrics.png" type="image/png" style="width:100%"></object>
+<figcaption style="">
+Average magnitude of state channels over time for $L_2$ loss and cross-entropy loss.</figcaption>
 </figure></p>
 <p>The figure above shows how switching to an $L_2$ loss successfully stabilizes the magnitude of the states, and how residual updates quickly converge to very small values after an agreement is about to be reached.</p>
 
@@ -142,6 +157,10 @@ A first attempt at having the neural CAs classify digits. Each digit is a separa
       <source src="figures/l2n_horiz_states.mp4#t=0.5" type="video/mp4">
       Your browser does not support the video tag.
     </video>
+<figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
+  <object data="figures/ce_vs_l2_metrics.png" type="image/png" style="width:100%"></object>
+<figcaption style="">
+Visualisation of internal state channel values during mutations. Note the accelerated timeline after a few seconds showing the relative stability of the channel values.</figcaption>
 </figure></p>
 <p>Here we show the resulting dynamics of the internal states for the final model. For visualization purposes, the internal state values are squashed using arctan - as the majority of state values have a magnitude of less than one but a small number are much larger in magnitude. The states converge to stable configurations quickly and the state channels exhibit spatial continuity with the neighbouring states - i.e. we don’t see any stark discontinuities in state values between neighbouring pixels. Applying a mutation causes the CA to readapt to the new shape and form a new classification in just a few steps, after which it’s internal values are fairly stable.</p>
 <h2 id='observed-robustness'>Observed robustness and limitations</h2>
@@ -160,6 +179,16 @@ A first attempt at having the neural CAs classify digits. Each digit is a separa
    <div>
   <object data="figures/horiz_legend.jpeg" type="image/png" style="width:320px"></object>
    </div>
+<figure>
+    <div class="vidoverlay"></div>
+    <video playsinline muted preload="auto" width:100%>
+      <source src="figures/l2n_horiz_states.mp4#t=0.5" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+<figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
+  <object data="figures/ce_vs_l2_metrics.png" type="image/png" style="width:100%"></object>
+<figcaption style="">
+Demonstration of the CA successfully re-classifying a digit when it is modified by hand.</figcaption>
 </figure></p>
 
 <p>The video above shows how the CA is able to interactively adjust to our own writing, and to change classification when the drawn digit is adjusted.</p>
@@ -176,6 +205,16 @@ A first attempt at having the neural CAs classify digits. Each digit is a separa
    <div>
   <object data="figures/horiz_legend.jpeg" type="image/png" style="width:320px"></object>
    </div>
+<figure>
+    <div class="vidoverlay"></div>
+    <video playsinline muted preload="auto" width:100%>
+      <source src="figures/l2n_horiz_states.mp4#t=0.5" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+<figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
+  <object data="figures/ce_vs_l2_metrics.png" type="image/png" style="width:100%"></object>
+<figcaption style="">
+Demonstration of some of the failure cases of the CA.</figcaption>
 </figure></p>
 
 <p>Above, we can see our CA failing to classify properly some variants of 1 and 9. This is likely due to MNIST training data not being sufficiently representative of all writing styles. We hypothesize that more varied and extensive datasets would improve the performance. The model often converges to oscillating attractors in these situations - flipping between different classifications. This property could not arise from static classifiers such as traditional convolutional neural networks.</p>
@@ -191,6 +230,16 @@ A first attempt at having the neural CAs classify digits. Each digit is a separa
    <div>
   <object data="figures/horiz_legend.jpeg" type="image/png" style="width:320px"></object>
    </div>
+<figure>
+    <div class="vidoverlay"></div>
+    <video playsinline muted preload="auto" width:100%>
+      <source src="figures/l2n_horiz_states.mp4#t=0.5" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+<figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
+  <object data="figures/ce_vs_l2_metrics.png" type="image/png" style="width:100%"></object>
+<figcaption style="">
+Demonstration the inherent robustness of the model to unseen sizes and variants of numbers.</figcaption>
 </figure></p>
 <p>Unsurprisingly, the resulting CA is translation invariant. More surprisingly - we notice the model is also scale-invariant for out-of-band scales of digits up - to a certain point. Alas, it does not generalize well enough to work for arbitrary lengths and widths.</p>
 <h2 id='related-work'>Related work</h2>

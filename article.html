@@ -6,8 +6,7 @@
 <p>Furthermore, if some agents were to be removed and added to form a new digit from a preexisting one, would they be able to know which the new digit is?</p>
 <p>Because digits are not rotationally invariant (i.e. 6 is a rotation of 9), we presume the agents must be made aware of their orientation with respect to the grid. Therefore, while they do not know where they are, they know where up, down, left and right are. This corresponds to biological situations where the remodeling structures exist in the context of a larger body and a set of morphogen gradients or tissue polarity that indicate directional information with respect to the three major body axes.</p>
 
-
-<p>Introducing the Self-classifying MNIST digit task:</p>
+<p>We introduce a self-classifying MNIST model.</p>
 
 <p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:500px;">
   <object data="figures/mnist_digits.png" type="image/png" style="width:100%"></object>
@@ -26,7 +25,9 @@
 <h3>“Alive”-ness and cell states</h3>
 <p>In “Growing CA” we decided the concept of a cell being “alive” or “dead” to be a function of its own alpha channel, as well as its neighbours, in a manner not too dissimilar to the original Game of Life rules. Recall that “alive” cells are cells which update their state, while dead cells are “frozen” and do not undergo updates. In contrast to biological life what we call “dead” cells aren’t “dead” in the sense of being non-existent or decayed, but rather “frozen” - they are visible to other cells and maintain their state throughout the system’s evolution. For our experiments, the spatial distribution of alive and dead cells is explicitly encoded in the input data values, and we perform computations for alive cells only, whose respective values in MNIST are $> 0.1$. It is important to note that the values from MNIST are exposed to the cell update rule as an immutable channel of cell state - i.e. cells are made aware of their own value in the corresponding MNIST sample as well as that of their neighbourhood cells. Therefore, given 19 mutable cell state channels (nine general purpose state channels for communication, 10 output state channels for digit classification) and an immutable “MNIST channel”, each cell perceives 19 + one state channel from the neighborhood, but outputs state updates for only the 19 mutable state channels.</p>
 
-<p>Keen readers may also notice that such a constraint will require digits to consist of a single fully connected component in order for classification to be possible, as any disconnected components will be unable to propagate information between themselves. However, this design decision was made in the context of staying true to biological cells or robot swarms, as opposed to letting “dead” cells communicate. However, while the vast majority of samples from MNIST are fully connected, some aren’t. We do not expect our models to classify non-connected minor components correctly, but we do not remove them.</p>
+<p>Keen readers may also notice that such a constraint will require digits to consist of a single fully connected component in order for classification to be possible, as any disconnected components will be unable to propagate information between themselves. However, this design decision was made in the context of staying true to an analogy of having biological cells or robot swarms placed in a distinct shape, and having them identify the shape they are in.</p>
+
+<p>The vast majority of samples from MNIST are fully connected, but some aren’t. We do not expect our models to classify non-connected minor components correctly, but we do not remove them.</p>
 <h3>Perception</h3>
 <p>Growing CA made use of a fixed three-by-three convolution to estimate the gradient of state in x and y (using Sobel filters). We found that fully trainable three-by-three kernels outperform their fixed counterpart, and use trainable kernels in this work.</p>
 
@@ -68,7 +69,7 @@
 </figure></p>
 <p>The figure above shows the evolution, over time, of the average magnitude of the state values of active cells (solid line), and the average magnitude of the residual updates for the active cells firing at each timestamp (dotted line). We can observe two important properties of our model: the average magnitude of each cell’s internal states looks suspiciously like it’s somewhat unbounded in its growth (at least in the time-scales in our experiments), and the average magnitude of the residual updates does not change significantly over time. We theorize a successful CA model should stabilize the magnitude of its internal states once cells find agreement.</p>
 
-<p><strong>Change the loss to L2: </strong>Using cross-entropy loss in a one-hot setting inherently always tries to increase the ratio of the incoming logit value for the correct class to the logit values of the other classes. In our case, the incoming logits exist as channels of a cell’s state. Given the recurrent nature of cell updates, we theorize the gradient may in turn be pushing all the cell state values to increase in magnitude. Furthermore, softmax cross-entropy introduces degeneracy in the the space of logits, which we theorize contributes to the lack of a shared reference range for logit values between cells. Thus, perhaps a simpler loss function would avoid these pitfalls. </p>
+<p><strong>Change the loss to $L_2$: </strong>Using cross-entropy loss in a one-hot setting inherently always tries to increase the ratio of the incoming logit value for the correct class to the logit values of the other classes. In our case, the incoming logits exist as channels of a cell’s state. Given the recurrent nature of cell updates, we theorize the gradient may in turn be pushing all the cell state values to increase in magnitude. Furthermore, softmax cross-entropy introduces degeneracy in the the space of logits, which we theorize contributes to the lack of a shared reference range for logit values between cells. Thus, perhaps a simpler loss function would avoid these pitfalls. </p>
 
 <p>We instead train our model with a pixel-wise $L_2$ loss with regards to one-hot vectors with the correct label arbitrarily set to $1.0$. Intuitively, a converged solution should be more stable since the raw outputs of the network are simply encouraged to stay close to the range $[0, 1]$ instead of being continually pried apart. This should both keep stable the magnitude of internal state channels and also help the cells agree on a reference range for their outputs. </p>
 
@@ -193,10 +194,11 @@
 <p><strong>MNIST and CA</strong></p>
 <p>Since CAs are easily applied to two dimensional grids, many researchers wondered if they could use them somehow to classify the MNIST dataset <d-cite key="lecun_mnist"></d-cite>. Work we aware of combines CAs with Reservoir Computing <d-cite key="alej2018reservoir, alej2020reservoir"></d-cite>, Boltzmann Machines <d-cite key="matsubara2018"></d-cite>, Evolutionary Strategies <d-cite key="oliveira2008"></d-cite>, and ensemble methods <d-cite key="WALI201877, jastrzebska2017"></d-cite>. To the best of our knowledge, we are the first to train end-to-end differentiable Neural CAs for classification purposes, and we are the first to introduce the self-classifying variant of MNIST, where each pixel in the digit needs to coordinate locally in order to come to an understanding about its label.</p>
 <h2 id='discussion'>Discussion</h2>
-<h3>Engineering and Machine learning</h3>
 <p>This article serves as a proof of concept for how a simple self-organising system such as CA can be used for a task such as classification if trained end-to-end through backpropagation.</p>
 
-<p>The resulting model adapts to writing and erasing, and is surprisingly robust to certain ranges of digit stretching and brush widths. We hypothesize that self-organising models with constrained capacity may be inherently robust to generalisations, and we encourage future work to test this hypothesis.</p>
+<p>The resulting model adapts to writing and erasing, and is surprisingly robust to certain ranges of digit stretching and brush widths. We hypothesize that self-organising models with constrained capacity may be inherently robust with good generalisation properties, and we encourage future work to test this hypothesis.</p>
+
+<p>What our work specifically shows is that there are things we can "teach" or "train" a collective of cells to do which would be impossible for them to learn if we tried to train them by individually or if we approached this by trying to train or engineer a single cell. The cells being trained in unison (while communicating with each other) allows them to learn more complex behaviour than any attempt to train them one by one.</p>
 </d-article>
 <d-appendix>
 <h3>Acknowledgments</h3>
@@ -206,7 +208,7 @@
 
 <p><strong>Demos:</strong> Ettore, Alexander and Eyvind contributed to the tf.js demo.</p>
 
-<p><strong>Writing and Diagrams:</strong> Ettore outlined the structure of the article, created graphs and videos, and contributed to the content throughout. Eyvind contributed to the content throughout, including video making and editing.</p>
+<p><strong>Writing and Diagrams:</strong> Ettore outlined the structure of the article, created graphs and videos, and contributed to the content throughout. Eyvind contributed to the content throughout, including video making and editing substantive editing and writing.</p>
 <h3>Implementation details</h3>
 <p><strong>TF.js playground.</strong> The demo shown in this work is made through Tensorflow.js (TF.js). In the colaboratory notebook described below, the reader can find customizable sizes of this playground, as well as more options for exploring pretrained models, trained without sampling from a pool of different initial states, or mutation mechanisms, or using a cross-entropy loss.</p>
 

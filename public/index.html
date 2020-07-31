@@ -683,8 +683,7 @@ input[type="radio"] {
 <p>Furthermore, if some agents were to be removed and added to form a new digit from a preexisting one, would they be able to know which the new digit is?</p>
 <p>Because digits are not rotationally invariant (i.e. 6 is a rotation of 9), we presume the agents must be made aware of their orientation with respect to the grid. Therefore, while they do not know where they are, they know where up, down, left and right are. This corresponds to biological situations where the remodeling structures exist in the context of a larger body and a set of morphogen gradients or tissue polarity that indicate directional information with respect to the three major body axes.</p>
 
-
-<p>Introducing the Self-classifying MNIST digit task:</p>
+<p>We introduce a self-classifying MNIST model.</p>
 
 <p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:500px;">
   <object data="figures/mnist_digits.png" type="image/png" style="width:100%"></object>
@@ -701,16 +700,17 @@ input[type="radio"] {
 <h3>Target labels</h3>
 <p>The work in Growing CA used a label, or ground truth, in the form of an RGB image, with the loss encouraging the first three state channels of the cells to approximate this image. For our experiments, we treat the last ten channels of our cells as a pseudo-distribution over each possible label (digit). During inference, we simply pick the label corresponding to the channel with the highest output value.</p>
 <h3>“Alive”-ness and cell states</h3>
-<p>In “Growing CA” we decided the concept of a cell being “alive” or “dead” to be a function of its own alpha channel, as well as its neighbours, in a manner not too dissimilar to the original Game of Life rules. Recall that “alive” cells are cells which update their state, while dead cells are “frozen” and do not undergo updates. In the context of parallels to biological life it is important to make the distinction here that what we call “dead” cells aren’t really “dead” in the sense of being non-existent or decayed, but rather “frozen” - they are visible to other cells and maintain their state throughout the system’s evolution. For our experiments, the spatial distribution of alive and dead cells is explicitly encoded in the input data values, and we perform computations for alive cells only, whose respective values in MNIST are $> 0.1$. It is important to note that the values from MNIST are exposed to the cell update rule as an immutable channel of cell state - i.e. cells are made aware of their own value in the corresponding MNIST sample as well as that of their neighbourhood cells. Therefore, given 19 mutable cell state channels (nine general purpose state channels for communication, 10 output state channels for digit classification) and an immutable “MNIST channel”, each cell perceives 19 + one state channel from the neighborhood, but outputs state updates for only the 19 mutable state channels.</p>
+<p>In “Growing CA” we decided the concept of a cell being “alive” or “dead” to be a function of its own alpha channel, as well as its neighbours, in a manner not too dissimilar to the original Game of Life rules. Recall that “alive” cells are cells which update their state, while dead cells are “frozen” and do not undergo updates. In contrast to biological life what we call “dead” cells aren’t “dead” in the sense of being non-existent or decayed, but rather “frozen” - they are visible to other cells and maintain their state throughout the system’s evolution. For our experiments, the spatial distribution of alive and dead cells is explicitly encoded in the input data values, and we perform computations for alive cells only, whose respective values in MNIST are $> 0.1$. It is important to note that the values from MNIST are exposed to the cell update rule as an immutable channel of cell state - i.e. cells are made aware of their own value in the corresponding MNIST sample as well as that of their neighbourhood cells. Therefore, given 19 mutable cell state channels (nine general purpose state channels for communication, 10 output state channels for digit classification) and an immutable “MNIST channel”, each cell perceives 19 + one state channel from the neighborhood, but outputs state updates for only the 19 mutable state channels.</p>
 
-<p>Keen readers may also notice that such a constraint will require digits to consist of a single fully connected component in order for classification to be possible, as any disconnected components will be unable to propagate information between each other. This setup is more close to possible real-world applications of biological cells or robot swarms, as opposed to letting “dead” cells communicate. However, while the vast majority of samples from MNIST are fully connected, some aren’t. We do not expect our models to classify non-connected digits correctly, but do not modify the dataset by removing them.</p>
+<p>Keen readers may also notice that such a constraint will require digits to consist of a single fully connected component in order for classification to be possible, as any disconnected components will be unable to propagate information between themselves. However, this design decision was made in the context of staying true to an analogy of having biological cells or robot swarms placed in a distinct shape, and having them identify the shape they are in.</p>
 
+<p>The vast majority of samples from MNIST are fully connected, but some aren’t. We do not expect our models to classify non-connected minor components correctly, but we do not remove them.</p>
 <h3>Perception</h3>
 <p>Growing CA made use of a fixed three-by-three convolution to estimate the gradient of state in x and y (using Sobel filters). We found that fully trainable three-by-three kernels outperform their fixed counterpart, and use trainable kernels in this work.</p>
 
 <p>Overall, the model remains small by standards of contemporary deep learning (<25k parameters). In this work, we are interested in demonstrating a novel approach to classification and do not attempt to maximise the validation accuracy of the model by increasing the number of parameters or any other tuning, although we suspect that just as with most models based off of deep neural networks one would observe a positive correlation between accuracy and model size.</p>
 <h2 id='experiment-1'>Experiment 1: Self-classify, persist and mutate</h2>
-<p>This first experiment makes use of the same training paradigm as discussed in Growing CA. Training is done with a pool of initial samples, to allow the model to learn to persist, and the converged states are perturbed. The perturbation performed in this work is, however, markedly different. In experiment three of the Growing CA article, states of cells were at random destroyed in an attempt to make the CAs resistant to destructive perturbations (analogous to traumatic tissue loss). In this work, our goal is of a broader scope: while having regenerative properties is favourable, we also want our CAs to <i>be capable of correcting themselves </i><i>when the underlying digits change</i> (corresponding to a teratogenic influence during development or the case of an incorrect or incomplete remodeling event such as metamorphosis or rescaling). The distinction between training them from scratch and having them learn to accommodate for perturbations is subtle but important. An important feature of life is to react to changing environmental conditions or changes external to oneself. If our cells were to simply learn to recognize a digit, then enter some dormant state and not further react to changes we would be missing this key property of living organisms. One could imagine a trivial solution in the absence of perturbations, where a single “wave” of information is passed from the boundaries of the digit inwards, then back out, allowing all cells to agree on the correct classification, then no further communication between cells. By introducing perturbations to new digits, the cells have to be in constant communication and achieve a “dynamic” homeostasis - continually “kept on their toes” for any new or further communication from their neighbours.</p>
+<p>This first experiment makes use of the same training paradigm as discussed in Growing CA. Training is done with a pool of initial samples, to allow the model to learn to persist, and the converged states are perturbed. The perturbation performed in this work is, however, markedly different. In experiment three of the Growing CA article, states of cells were at random destroyed in an attempt to make the CAs resistant to destructive perturbations (analogous to traumatic tissue loss). In this work, our goal is of a broader scope: while having regenerative properties is favourable, we also want our CAs to <i>be capable of correcting themselves </i><i>when the underlying digits change</i> (corresponding to a teratogenic influence during development or the case of an incorrect or incomplete remodeling event such as metamorphosis or rescaling). The distinction between training them from scratch and having them learn to accommodate for perturbations is subtle but important. An important feature of life is to react to changing environmental conditions or changes external to oneself. If our virtual cells simply learned to recognize a digit, then entered some dormant state and did not react to any further changes we would be missing this key property of living organisms. One could imagine a trivial solution in the absence of perturbations, where a single “wave” of information is passed from the boundaries of the digit inwards, then back out, allowing all cells to agree on the correct classification, then no further communication between cells. By introducing perturbations to new digits, the cells have to be in constant communication and achieve a “dynamic” homeostasis - continually “kept on their toes” for any new or further communication from their neighbours.</p>
 
 <p>We apply random digit mutations: given an original digit and evolved state, we sample a new digit and erase all cell states that are not present in both digits. This kind of mutation inherently teaches CAs to learn to process new information. Additionally, it exposes the cells to training states where all of the remaining cells after a perturbation are misclassifying the new digit and must recover from this catastrophic mutation. This in turn forces our CAs to learn to change their own classifications under certain circumstances.</p>
 
@@ -725,30 +725,32 @@ input[type="radio"] {
 
 <p>The video above shows the CA classifying a batch of digits for 200 steps, which are then mutated, and we let the system evolve and classify for a further 200 more steps.</p>
 
-<p>The results look promising overall, and we can see how our CAs are able to recover from mutations. However, keen readers may notice there is often a lack of total agreement between the cells. Often, the majority of the digit is correctly classified, but some straggler cells here and there are still convinced they are part of a different digit, often switching back and forth in an oscillating pattern, creating a flickering effect in the visualization. Since we aim at obtaining both correct and stable configurations, we want to encourage total agreement. The next experiment will try to do so.</p>
+<p>The results look promising overall, and we can see how our CAs are able to recover from mutations. However, keen readers may notice there is often a lack of total agreement between the cells. Often, the majority of the digit is classified correctly, but some outlier cells are still convinced they are part of a different digit, often switching back and forth in an oscillating pattern, creating a flickering effect in the visualization. However - our goal is stable, and total, agreement amongst the cells. The next experiment investigates this undesired behaviour.</p>
 <h2 id='experiment-2'>Experiment 2: Solving the flickery regression</h2>
-<p>A good starting point is to try and quantify the aforementioned behaviour. One metric we could track is <strong>average cell accuracy</strong>: the average percentage of cells who correctly classify the digits in a batch over time, before and after the digit being mutated:</p>
-<p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width: 700px">
+<p>Quantifying a qualitative issue is the first step to solving it. We propose the metric to track - <strong>average cell accuracy</strong>: defined as mean percentage of cells which have a correct output. We track this metric both before and after the digit is mutated.<figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width: 700px">
   <object data="figures/ce_accuracy.png" type="image/png" style="width:100%"></object>
 </figure></p>
-<p>In the figure above, we show the average percentage of correctly classified cells across the entire test set, over 400 CA steps. After 200 steps, we randomly mutate the digit to a new one (causing the brief drop to 10% accuracy, as the cells re-organise).</p>
+<p>In the figure above, we show the mean percentage of correctly classified cells, across the test set, over 400 steps. At step 200, we randomly mutate the digit. Accordingly, we see a brief drop in accuracy as the cells re-organise and eventually come to agreement on what the new digit may be.</p>
 
-<p>The above graph shows how the average cell accuracy starts from 10% to then quickly reach  96% at 80 steps and slowly decay by 1% over 100 steps. After the mutations occurring in step 200, the average cell accuracy restarts from 10% and does not appear to behave significantly differently from a fresh start. The slow decay is related to the lack of total agreement, but doesn’t capture it sufficiently well. We then introduce a new metric that tracks this behavior more accurately: <strong>total agreement</strong>. We define total agreement to be the proportion of digits in a training batch where all cells agree with each other on what digit they think they are.</p>
+<p>We immediately notice an interesting phenomenon - the cell accuracy appears to decrease over time, after the cells have come to an agreement. However - the graph does not necessarily reflect the qualitative issue of unstable labels that we set out to solve. The slow decay in accuracy may be a reflection of the lack of total agreement, but doesn’t capture the stark instability issue we see in many of the samples.</p>
+
+<p>Instead of looking at mean agreement perhaps measuring <strong>total agreement</strong> would be more helpful. We define total agreement as the percentage of samples from the training batch where all the cells output the same label. </p>
 <p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
   <object data="figures/ce_agreement.png" type="image/png" style="width:100%"></object>
 </figure></p>
 
-<p>In the figure above we see how total agreement starts at 0%, and then spikes up to roughly 78%, only to lose more than 10% agreement during the next 100 steps. Again, there does not appear to be a significantly different behaviour after mutation. This graph pinpoints an interesting phenomenon: the total agreement decreases significantly with time. This CA clearly is not stable at classifying digits in the long term - as time goes on, cells get less sure of themselves. Let us inspect the inner states of the CA to see if we can find some insight.</p>
+<p>This metric better captures the issues we are seeing. We see how total agreement starts at zero percent, and then spikes up to roughly 78%, only to lose more than 10% agreement over the next 100 steps. Again, there does not appear to be significantly different behaviour after mutation. Our model is clearly not only unstable in the short term, exhibiting flickering, but also it does not appear stable during longer timescales. As time goes on, cells get less sure of themselves. Let us inspect the inner states of the CA to see if we gain insight.</p>
 
 <p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
   <object data="figures/ce_magnitude.png" type="image/png" style="width:100%"></object>
 </figure></p>
-<p>The figure above shows the evolution over time of the average magnitude of each mutable state of active cells (solid line), and the average magnitude of the residual updates for the active cells firing at each timestamp (dotted line). We can observe two properties of this CA: the average magnitude of each cell’s internal states is unbounded, and the average magnitude of the residual updates does not change significantly over time. A desirable CA would likely stabilize its magnitude and learn to stop updating itself, once cells find an agreement.</p>
+<p>The figure above shows the evolution, over time, of the average magnitude of the state values of active cells (solid line), and the average magnitude of the residual updates for the active cells firing at each timestamp (dotted line). We can observe two important properties of our model: the average magnitude of each cell’s internal states looks suspiciously like it’s somewhat unbounded in its growth (at least in the time-scales in our experiments), and the average magnitude of the residual updates does not change significantly over time. We theorize a successful CA model should stabilize the magnitude of its internal states once cells find agreement.</p>
 
+<p><strong>Change the loss to $L_2$: </strong>Using cross-entropy loss in a one-hot setting inherently always tries to increase the ratio of the incoming logit value for the correct class to the logit values of the other classes. In our case, the incoming logits exist as channels of a cell’s state. Given the recurrent nature of cell updates, we theorize the gradient may in turn be pushing all the cell state values to increase in magnitude. Furthermore, softmax cross-entropy introduces degeneracy in the the space of logits, which we theorize contributes to the lack of a shared reference range for logit values between cells. Thus, perhaps a simpler loss function would avoid these pitfalls. </p>
 
-<p>Let us try to address the aforementioned problems in two ways:</p>
-<p><strong>Change the loss to L2: </strong>Cross-entropy loss inherently encourages the correct class to continually be pushed indefinitely higher than other predicted classes. Having high magnitude in the classification channels may in turn lead the remaining channels to adapt to a high magnitude regime. This, combined with a lack of a shared reference range for the target labels may make it difficult for the digits to stabilize. We instead investigate changing the target to be a 28x28x10 dimensional tensor, where each channel is 1 for the target class, and 0 otherwise, and using a pixelwise L2 loss. Intuitively, the solution should be more stable since not only the outputs are now encouraged to stay close to the range $[0, 1]$, but a properly classified digit in a cell will have exactly one output set to 1, and the rest to 0. This should decrease the magnitude of all internal states and give an absolute reference range for the target labels. Absolute reference ranges can in turn aid with stabilising the internal states, once an agreement is reached.</p>
-<p><strong>Add noise to the residual</strong>: A key idea in most schemes of regularization is to add noise to make a classifier or model more robust.  We add noise sampled from a normal distribution with 0 mean and 0.02 standard-deviation to the residual. The noise is added before the random mask for asynchronous updates.</p>
+<p>We instead train our model with a pixel-wise $L_2$ loss with regards to one-hot vectors with the correct label arbitrarily set to $1.0$. Intuitively, a converged solution should be more stable since the raw outputs of the network are simply encouraged to stay close to the range $[0, 1]$ instead of being continually pried apart. This should both keep stable the magnitude of internal state channels and also help the cells agree on a reference range for their outputs. </p>
+
+<p><strong>Add noise to the residual</strong>: A key idea in most schemes of regularization is to inject noise to make a classifier or model more robust.  We introduce noise sampled from a normal distribution with zero mean and 0.02 standard-deviation to the residual updates. The noise is added before the random mask of updates.</p>
 <p><figure>
     <div class="vidoverlay"></div>
     <video playsinline muted width="640px" preload="auto">
@@ -756,7 +758,7 @@ input[type="radio"] {
       Your browser does not support the video tag.
     </video>
 </figure></p>
-<p>The video above shows a batch of runs with the above augmentations in place. Qualitatively, the result looks much better - with less flickering and more total agreement. We now compare it to the original method:</p>
+<p>The video above shows a batch of runs with the augmentations in place. Qualitatively, the result looks much better - less flickering and more total agreement. We now compare it to the original method using the metrics we defined.</p>
 <p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
   <object data="figures/ce_vs_l2_metrics.png" type="image/png" style="width:100%"></object>
 </figure></p>
@@ -780,14 +782,14 @@ input[type="radio"] {
 <td align="center">66.2</td>
 </tr>
 <tr>
-<td align="center">L2</td>
+<td align="center">$L_2$</td>
 <td align="center">95.0 @ 95</td>
 <td align="center">94.7</td>
 <td align="center">85.5 @ 175</td>
 <td align="center">85.2</td>
 </tr>
 <tr>
-<td align="center">L2 + Noise</td>
+<td align="center">$L_2$ + Noise</td>
 <td align="center">95.4 @ 65</td>
 <td align="center"><b>95.3</b></td>
 <td align="center"><b>88.2 @ 190</b></td>
@@ -798,13 +800,13 @@ input[type="radio"] {
 </div>
 
 
-<p>The figure and table above show that CE achieves the highest accuracy of all models at roughly 80 steps. However, the accuracy at 200 steps is the same as the L2 + Noise model. Even though either accuracy and agreement degrade over time for all models, it is evident that the L2 + Noise is the most stable of them all. Moreover, the total agreement after 200 steps of L2 + Noise is 88%, more than 20% higher than the CE counterpart. One can extrapolate this degrading behavior observed continues after 200 steps, exacerbating the difference between CE and L2 models.</p>
+<p>The figure and table above show that cross-entropy achieves the highest accuracy of all models at roughly 80 steps. However, the accuracy at 200 steps is the same as the $L_2$ + Noise model. While accuracy and agreement degrade over time for all models, it is evident that the $L_2$ + Noise is the most stable configuration. Moreover, the total agreement after 200 steps of $L_2$ + Noise is 88%, an improvement of more than 20% as compared to the cross-entropy model. </p>
 <h3>Internal states</h3>
-<p>Below we compare the internal states of the newly trained models and the one trained on Experiment 1:</p>
+<p>Below we compare the internal states of the augmented model versus the original.</p>
 <p><figure style="margin-left:auto; margin-right: auto; grid-column:page; width:100%; max-width:700px">
   <object data="figures/magnitude_comparison.png" type="image/png" style="width:100%"></object>
 </figure></p>
-<p>The figure above shows how switching to an L2 loss successfully stabilizes the magnitude of the states, and how residual updates quickly converge to very small values after an agreement is about to be reached.</p>
+<p>The figure above shows how switching to an $L_2$ loss successfully stabilizes the magnitude of the states, and how residual updates quickly converge to very small values after an agreement is about to be reached.</p>
 
 <p><figure>
     <div class="vidoverlay"></div>
@@ -813,10 +815,12 @@ input[type="radio"] {
       Your browser does not support the video tag.
     </video>
 </figure></p>
-<p>Here we show the resulting dynamics of the internal states for the final model. For visualization purposes, the internal state values are squashed using arctan - as the majority of state values have a magnitude of less than one. The states converge to stable configurations quickly and the state channels exhibit spatial continuity with the neighbouring states - i.e. we don’t see any stark discontinuities in state values between neighbouring pixels. Applying a mutation causes the CA to readapt to the new shape and form a new classification in just a few steps, after which it’s internal values are fairly stable.</p>
+<p>Here we show the resulting dynamics of the internal states for the final model. For visualization purposes, the internal state values are squashed using arctan - as the majority of state values have a magnitude of less than one but a small number are much larger in magnitude. The states converge to stable configurations quickly and the state channels exhibit spatial continuity with the neighbouring states - i.e. we don’t see any stark discontinuities in state values between neighbouring pixels. Applying a mutation causes the CA to readapt to the new shape and form a new classification in just a few steps, after which it’s internal values are fairly stable.</p>
 <h2 id='observed-robustness'>Observed robustness and limitations</h2>
 <h3>Adaptation to mutation</h3>
-<p>The usage of random mutations during training was chosen to train a CA that would be responsive to changes. Biologically, this helps understand the insensitivity of some large-scale anatomical control mechanisms to mutations - for example, planaria continuously accumulate mutations over millennia of somatic inheritance but still regenerate the correct morphology 100% of the time in nature (and exhibit no genetic strains with new morphologies) <d-cite key="LEVIN2019125"></d-cite>. This is of critical importance while drawing, in order to allow live updates as different digits take shape (an eight being completed from a six, for instance). We encourage the readers to play with the interactive demo, and experience this for themselves. In this section, we want to showcase a few behaviours we found interesting.</p>
+<p>Random mutations were used during training to ensure the resulting CA was responsive to external changes. Biologically, this helps understand the insensitivity of some large-scale anatomical control mechanisms to mutations - for example, planaria continuously accumulate mutations over millennia of somatic inheritance but still regenerate the correct morphology 100% of the time in nature (and exhibit no genetic strains with new morphologies) <d-cite key="LEVIN2019125"></d-cite>. </p>
+<p>This robustness to change is of critical importance for making an interactive model - in order for the cells to classify drawings “live” (an eight being completed from a six, for instance, should quickly re-classify itself as an eight). We encourage the readers to play with the interactive demo, and experience this for themselves. In this section, we want to showcase a few behaviours we found interesting.</p>
+
 <p><figure>
     <div class="vidoverlay"></div>
     <div>
@@ -830,9 +834,9 @@ input[type="radio"] {
    </div>
 </figure></p>
 
-<p>The video above shows how the CA is able to interactively adjust to our own writing, and to change classification based on changes on its shape.</p>
+<p>The video above shows how the CA is able to interactively adjust to our own writing, and to change classification when the drawn digit is adjusted.</p>
 <h3>Robustness to out-of-training configurations</h3>
-<p>In the field of Machine Learning, it is of particular interest to see how trained models behave with out-of-training data. In the experiments sections of this article, we have already evaluated our model on the test set to make sure it does not overfit to the train set. In this section, we go further and see how much we can vary shapes of digits until the model is no longer capable of classifying digits correctly. Each type of model contains sets of inductive biases that render them more or less robust to certain types of out-of-training situations. Our model can be implemented by convolutional layers and we therefore expect them to share some key properties, such as translation invariance. Moreover, the local and self-organising nature of this model may showcase other interesting properties. Biology offers examples of repairing to novel configurations: 2-headed planaria, once created, regenerate to this new configuration <d-cite key="OVIEDO2010188"></d-cite> which was not evolutionarily present in their “training set”.</p>
+<p>In the field of Machine Learning, it is of particular interest to see how trained models behave with out-of-band data. In the experiments sections of this article, we evaluated our model on the test set of MNIST. In this section, we go further and see how the model reacts to digits drawn by us, and not sampled from MNIST at all. We vary the shapes of the digits until the model is no longer capable of classifying them correctly. Every classification model inherently contains certain inductive biases that render them more or less robust to generalizing to out-of-band data. Our model can be seen as a recurrent convolutional model and we therefore expect it to exhibit some of the key properties of traditional convolutional models - such as translation invariance. Moreover we strongly believe the self-organising nature of this model introduces a novel inductive bias which may have interesting properties of its own. Biology offers examples of repairing to novel configurations: 2-headed planaria, once created, regenerate to this new configuration <d-cite key="OVIEDO2010188"></d-cite> which was not evolutionarily present in their “training set”. </p>
 <p><figure>
     <div class="vidoverlay"></div>
 <div>
@@ -846,7 +850,7 @@ input[type="radio"] {
    </div>
 </figure></p>
 
-<p>Above, we can see our CA failing at classifying properly some variants of 1 and 9. This is likely due to MNIST training data not being sufficiently representative of all writing styles. We hypothesize that more varied and extensive datasets would help diminishing this problem. Interestingly, the CAs often converge to oscillating attractors in these situations. This property could not arise from static classifiers such as traditional convolutional neural networks.</p>
+<p>Above, we can see our CA failing to classify properly some variants of 1 and 9. This is likely due to MNIST training data not being sufficiently representative of all writing styles. We hypothesize that more varied and extensive datasets would improve the performance. The model often converges to oscillating attractors in these situations - flipping between different classifications. This property could not arise from static classifiers such as traditional convolutional neural networks.</p>
 
 <p><figure>
     <div class="vidoverlay"></div>
@@ -860,17 +864,18 @@ input[type="radio"] {
   <object data="figures/horiz_legend.jpeg" type="image/png" style="width:320px"></object>
    </div>
 </figure></p>
-<p>As hinted before, the resulting CA is translation invariant. Above we show how the model is also scaling invariant for out-of-training scaling of digits up to a certain point. Alas, it does not generalize well enough to work for arbitrary lengths and widths.</p>
+<p>Unsurprisingly, the resulting CA is translation invariant. More surprisingly - we notice the model is also scale-invariant for out-of-band scales of digits up - to a certain point. Alas, it does not generalize well enough to work for arbitrary lengths and widths.</p>
 <h2 id='related-work'>Related work</h2>
-<p>This article is follow-up work of the Growing Neural Cellular Automata article in this thread <d-cite key="mordvintsev2020growing"></d-cite>, and it is meant to be read after the latter. In this article, we avoid repeating work related to both articles, and we refer to the Growing Neural Cellular Automata article for the model and biological backgrounds.</p>
+<p>This article is follow-up work to Growing Neural Cellular Automata <d-cite key="mordvintsev2020growing"></d-cite>, and it is meant to be read after the latter. In this article, we purposefully skim over details of the model that were explored in the original  article, and we refer to the Growing Neural Cellular Automata article for the full model description and biological backgrounds.</p>
 
 <p><strong>MNIST and CA</strong></p>
-<p>Since CAs are easily applied to two dimensional grids, many researchers wondered if they could use them somehow to classify the MNIST dataset <d-cite key="lecun_mnist"></d-cite>. Work we aware of combines CAs with Reservoir Computing <d-cite key="alej2018reservoir, alej2020reservoir"></d-cite>, Boltzmann Machines <d-cite key="matsubara2018"></d-cite>, Evolutionary Strategies <d-cite key="oliveira2008"></d-cite>, and ensemble methods <d-cite key="WALI201877, jastrzebska2017"></d-cite>. To the best of our knowledge, we are the first to train end-to-end differentiable Neural CAs for classification purposes, and we are the first to introduce the Self-classifying variant of MNIST, where each pixel in the digit needs to coordinate locally in order to understand their label.</p>
+<p>Since CAs are easily applied to two dimensional grids, many researchers wondered if they could use them somehow to classify the MNIST dataset <d-cite key="lecun_mnist"></d-cite>. Work we aware of combines CAs with Reservoir Computing <d-cite key="alej2018reservoir, alej2020reservoir"></d-cite>, Boltzmann Machines <d-cite key="matsubara2018"></d-cite>, Evolutionary Strategies <d-cite key="oliveira2008"></d-cite>, and ensemble methods <d-cite key="WALI201877, jastrzebska2017"></d-cite>. To the best of our knowledge, we are the first to train end-to-end differentiable Neural CAs for classification purposes, and we are the first to introduce the self-classifying variant of MNIST, where each pixel in the digit needs to coordinate locally in order to come to an understanding about its label.</p>
 <h2 id='discussion'>Discussion</h2>
-<h3>Engineering and Machine learning</h3>
 <p>This article serves as a proof of concept for how a simple self-organising system such as CA can be used for a task such as classification if trained end-to-end through backpropagation.</p>
 
-<p>The resulting model adapts to writing and erasing, and is surprisingly robust to certain ranges of digit stretching and brush widths. We hypothesize that self-organising models with constrained capacity may be inherently robust to generalisations, and we encourage future work to test this hypothesis.</p>
+<p>The resulting model adapts to writing and erasing, and is surprisingly robust to certain ranges of digit stretching and brush widths. We hypothesize that self-organising models with constrained capacity may be inherently robust with good generalisation properties, and we encourage future work to test this hypothesis.</p>
+
+<p>What our work specifically shows is that there are things we can "teach" or "train" a collective of cells to do which would be impossible for them to learn if we tried to train them by individually or if we approached this by trying to train or engineer a single cell. The cells being trained in unison (while communicating with each other) allows them to learn more complex behaviour than any attempt to train them one by one.</p>
 </d-article>
 <d-appendix>
 <h3>Acknowledgments</h3>
@@ -880,7 +885,7 @@ input[type="radio"] {
 
 <p><strong>Demos:</strong> Ettore, Alexander and Eyvind contributed to the tf.js demo.</p>
 
-<p><strong>Writing and Diagrams:</strong> Ettore outlined the structure of the article, created graphs and videos, and contributed to the content throughout. Eyvind contributed to the content throughout, including video making and editing.</p>
+<p><strong>Writing and Diagrams:</strong> Ettore outlined the structure of the article, created graphs and videos, and contributed to the content throughout. Eyvind contributed to the content throughout, including video making and editing substantive editing and writing.</p>
 <h3>Implementation details</h3>
 <p><strong>TF.js playground.</strong> The demo shown in this work is made through Tensorflow.js (TF.js). In the colaboratory notebook described below, the reader can find customizable sizes of this playground, as well as more options for exploring pretrained models, trained without sampling from a pool of different initial states, or mutation mechanisms, or using a cross-entropy loss.</p>
 

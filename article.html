@@ -192,10 +192,9 @@
 <p><strong>MNIST and CA</strong></p>
 <p>Since CAs are easily applied to two dimensional grids, many researchers wondered if they could use them somehow to classify the MNIST dataset <d-cite key="lecun_mnist"></d-cite>. Work we aware of combines CAs with Reservoir Computing <d-cite key="alej2018reservoir, alej2020reservoir"></d-cite>, Boltzmann Machines <d-cite key="matsubara2018"></d-cite>, Evolutionary Strategies <d-cite key="oliveira2008"></d-cite>, and ensemble methods <d-cite key="WALI201877, jastrzebska2017"></d-cite>. To the best of our knowledge, we are the first to train end-to-end differentiable Neural CAs for classification purposes, and we are the first to introduce the self-classifying variant of MNIST, where each pixel in the digit needs to coordinate locally in order to come to an understanding about its label.</p>
 <h2 id='discussion'>Discussion</h2>
-<h3>Engineering and Machine learning</h3>
 <p>This article serves as a proof of concept for how a simple self-organising system such as CA can be used for a task such as classification if trained end-to-end through backpropagation.</p>
 
-<p>The resulting model adapts to writing and erasing, and is surprisingly robust to certain ranges of digit stretching and brush widths. We hypothesize that self-organising models with constrained capacity may be inherently robust to generalisations, and we encourage future work to test this hypothesis.</p>
+<p>The resulting model adapts to writing and erasing, and is surprisingly robust to certain ranges of digit stretching and brush widths. We hypothesize that self-organising models with constrained capacity may be inherently robust with good generalisation properties, and we encourage future work to test this hypothesis.</p>
 </d-article>
 <d-appendix>
 <h3>Acknowledgments</h3>
@@ -205,7 +204,7 @@
 
 <p><strong>Demos:</strong> Ettore, Alexander and Eyvind contributed to the tf.js demo.</p>
 
-<p><strong>Writing and Diagrams:</strong> Ettore outlined the structure of the article, created graphs and videos, and contributed to the content throughout. Eyvind contributed to the content throughout, including video making and editing.</p>
+<p><strong>Writing and Diagrams:</strong> Ettore outlined the structure of the article, created graphs and videos, and contributed to the content throughout. Eyvind contributed to the content throughout, including video making and editing substantive editing and writing.</p>
 <h3>Implementation details</h3>
 <p><strong>TF.js playground.</strong> The demo shown in this work is made through Tensorflow.js (TF.js). In the colaboratory notebook described below, the reader can find customizable sizes of this playground, as well as more options for exploring pretrained models, trained without sampling from a pool of different initial states, or mutation mechanisms, or using a cross-entropy loss.</p>
 

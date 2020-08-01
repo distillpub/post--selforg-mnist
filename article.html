@@ -42,7 +42,7 @@ A visualisation of a random sample of digits from MNIST, each shaded by the colo
 
 <p>We use a pixel-wise (cell-wise) cross entropy loss  on the last ten channels of each pixel, applying it after letting the CA evolve for 20 steps.</p>
 <p><figure>
-    <div>
+    <div class="vc">
     <div class="vidoverlay"></div>
     <video playsinline muted width="640px" preload="auto">
       <source src="figures/ce_runs.mp4#t=0.1" type="video/mp4">
@@ -88,7 +88,7 @@ Average magnitude of the state channels in cells over cells, over time.</figcapt
 
 <p><strong>Add noise to the residual</strong>: A key idea in most schemes of regularization is to inject noise to make a classifier or model more robust.  We introduce noise sampled from a normal distribution with zero mean and 0.02 standard-deviation to the residual updates. The noise is added before the random mask of updates.</p>
 <p><figure>
-<div>
+<div class="vc">
     <div class="vidoverlay"></div>
     <video playsinline muted width="640px" preload="auto">
       <source src="figures/l2_runs.mp4#t=0.1" type="video/mp4">
@@ -154,7 +154,7 @@ Average magnitude of state channels over time for $L_2$ loss and cross-entropy l
 <p>The figure above shows how switching to an $L_2$ loss successfully stabilizes the magnitude of the states, and how residual updates quickly converge to very small values after an agreement is about to be reached.</p>
 
 <p><figure>
-<div>
+<div class="vc">
     <div class="vidoverlay"></div>
     <video playsinline muted preload="auto" width:100%>
       <source src="figures/l2n_horiz_states.mp4#t=0.5" type="video/mp4">
@@ -171,7 +171,7 @@ Visualisation of internal state channel values during mutations. Note the accele
 <p>This robustness to change is of critical importance for making an interactive model - in order for the cells to classify drawings “live” (an eight being completed from a six, for instance, should quickly re-classify itself as an eight). We encourage the readers to play with the interactive demo, and experience this for themselves. In this section, we want to showcase a few behaviours we found interesting.</p>
 
 <p><figure>
-    <div>
+    <div class="vc">
 <div class="vidoverlay"></div>    
 <video playsinline muted width="320px" preload="auto">
       <source src="figures/drawing_mutations.mp4#t=9.2" type="video/mp4">
@@ -186,7 +186,7 @@ Demonstration of the CA successfully re-classifying a digit when it is modified 
 <h3>Robustness to out-of-training configurations</h3>
 <p>In the field of Machine Learning, it is of particular interest to see how trained models behave with out-of-band data. In the experiments sections of this article, we evaluated our model on the test set of MNIST. In this section, we go further and see how the model reacts to digits drawn by us, and not sampled from MNIST at all. We vary the shapes of the digits until the model is no longer capable of classifying them correctly. Every classification model inherently contains certain inductive biases that render them more or less robust to generalizing to out-of-band data. Our model can be seen as a recurrent convolutional model and we therefore expect it to exhibit some of the key properties of traditional convolutional models - such as translation invariance. Moreover we strongly believe the self-organising nature of this model introduces a novel inductive bias which may have interesting properties of its own. Biology offers examples of repairing to novel configurations: 2-headed planaria, once created, regenerate to this new configuration <d-cite key="OVIEDO2010188"></d-cite> which was not evolutionarily present in their “training set”. </p>
 <p><figure>
-<div>
+<div class="vc">
     <div class="vidoverlay"></div>
     <video playsinline muted width="320px" preload="auto">
       <source src="figures/drawing_bad.mp4#t=9.0" type="video/mp4">
@@ -200,7 +200,7 @@ Demonstration of some of the failure cases of the CA.</figcaption>
 <p>Above, we can see our CA failing to classify properly some variants of 1 and 9. This is likely due to MNIST training data not being sufficiently representative of all writing styles. We hypothesize that more varied and extensive datasets would improve the performance. The model often converges to oscillating attractors in these situations - flipping between different classifications. This property could not arise from static classifiers such as traditional convolutional neural networks.</p>
 
 <p><figure>
-<div>
+<div class="vc">
     <div class="vidoverlay"></div>
     <video playsinline muted width="320px" preload="auto">
       <source src="figures/mnist_ablation.mp4#t=16.0" type="video/mp4">

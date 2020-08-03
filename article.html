@@ -192,7 +192,10 @@ Demonstration of the CA successfully re-classifying a digit when it is modified 
       <source src="figures/drawing_bad.mp4#t=9.0" type="video/mp4">
       Your browser does not support the video tag.
     </video>
-</div>
+</div>   
+<div>
+  <object data="figures/horiz_legend.jpeg" type="image/png" style="width:320px"></object>
+   </div>
 <figcaption style="">
 Demonstration of some of the failure cases of the CA.</figcaption>
 </figure></p>
@@ -208,9 +211,21 @@ Demonstration of some of the failure cases of the CA.</figcaption>
     </video>
 </div>
 <figcaption style="">
-Demonstration the inherent robustness of the model to unseen sizes and variants of numbers.</figcaption>
+Demonstration of the inherent robustness of the model to unseen sizes and variants of numbers.</figcaption>
 </figure></p>
 <p>Unsurprisingly, the resulting CA is translation invariant. More surprisingly - we notice the model is also scale-invariant for out-of-band scales of digits up - to a certain point. Alas, it does not generalize well enough to work for arbitrary lengths and widths.</p>
+<p><figure>
+<div class="vc">
+    <div class="vidoverlay"></div>
+    <video playsinline muted width="320px" preload="auto">
+      <source src="figures/mnist_chimeras.mp4#t=16.0" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+</div>
+<figcaption style="">
+Demonstration of the behaviour of the model with chimeric configurations.</figcaption>
+</figure></p>
+<p>Finally, we show the behavior of our CA when asked to classify “chimeric digits” - shapes composed of multiple digits.</p>
 <h2 id='related-work'>Related work</h2>
 <p>This article is follow-up work to Growing Neural Cellular Automata <d-cite key="mordvintsev2020growing"></d-cite>, and it is meant to be read after the latter. In this article, we purposefully skim over details of the model that were explored in the original  article, and we refer to the Growing Neural Cellular Automata article for the full model description and biological backgrounds.</p>
 
@@ -221,7 +236,7 @@ Demonstration the inherent robustness of the model to unseen sizes and variants 
 
 <p>The resulting model adapts to writing and erasing, and is surprisingly robust to certain ranges of digit stretching and brush widths. We hypothesize that self-organising models with constrained capacity may be inherently robust with good generalisation properties, and we encourage future work to test this hypothesis.</p>
 
-<p>What our work specifically shows is that there are things we can "teach" or "train" a collective of cells to do which would be impossible for them to learn if we tried to train them by individually or if we approached this by trying to train or engineer a single cell. The cells being trained in unison (while communicating with each other) allows them to learn more complex behaviour than any attempt to train them one by one.</p>
+<p>What our work specifically shows is that there are things we can "teach" or "train" a collective of cells to do which would be impossible for them to learn if we tried to train them individually or if we approached this by trying to train or engineer a single cell. The cells being trained in unison (while communicating with each other) allows them to learn more complex behaviour than any attempt to train them one by one.</p>
 </d-article>
 <d-appendix>
 <h3>Acknowledgments</h3>

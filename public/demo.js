@@ -386,9 +386,9 @@ export function mnistDemo(divId, canvasId) {
 
     
       let lastDrawTime = 0;
-      let lastStepTime = 0;
-      let lastStepCount = 0;
+      let lastFPSTime = 0;
       let stepsPerFrame = 1;
+      let stepsSinceLastFPS = 0;
       let frameCount = 0;
 
       let first = true;
@@ -415,10 +415,11 @@ export function mnistDemo(divId, canvasId) {
                   ['Identity']));
             });
           }
-          if (stepsPerFrame > 0) {
-            $("#ips").innerText = Math.round(lastStepCount/((time - lastStepTime)/1000.0));
-            lastStepTime = time;
-            lastStepCount = stepsPerFrame;
+          stepsSinceLastFPS += stepsPerFrame; 
+          if (time - lastFPSTime > 1000) {
+            $("#ips").innerText = Math.round(stepsSinceLastFPS/((time - lastFPSTime)/1000.0));
+            stepsSinceLastFPS = 0;
+            lastFPSTime = time;
           }
         }
         const imageData = tf.tidy(() => {

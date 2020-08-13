@@ -416,7 +416,7 @@ export function mnistDemo(divId, canvasId) {
             });
           }
           if (time - lastFPSTime > 1000) {
-            $("#ips").innerText = Math.round((stepsSinceLastFPS/((time - lastFPSTime)/1000.0));
+            $("#ips").innerText = Math.round(stepsSinceLastFPS/((time - lastFPSTime)/1000.0));
             stepsSinceLastFPS = 0;
             lastFPSTime = time;
           }

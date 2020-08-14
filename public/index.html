@@ -590,6 +590,10 @@ input[type="radio"] {
     transition: opacity 1s;
 }
 
+.vc {
+  position: relative;
+}
+
 </style>
 
 <div class="l-body-outset grid" id="demo">
@@ -644,7 +648,7 @@ input[type="radio"] {
         <div id="bindiv">
           <img id="bin" src="bin.png">
         </div>
-        <div id="paletteHint">This article relies on using color to demonstrate classification labels. If you have trouble distinguishing the colours of digits in the above legend, please try and adjust the slider above to see if there is an alternative colour palette for you. The chosen palette will propagate throughout the article.</div>
+        <div id="paletteHint">This article relies on using color to demonstrate classification label. If you have trouble distinguishing the colours of digits in the above legend, please try and adjust the slider above to see if there is an alternative colour palette for you. The chosen palette will propagate throughout the article.</div>
         <div id="colab-hero-div">
           <a href="https://colab.research.google.com/github/google-research/self-organising-systems/blob/master/notebooks/mnist_ca.ipynb" class="colab-root" id="colab-hero">Try in a <span class="colab-span">Notebook</span></a>
         </div>
@@ -757,8 +761,7 @@ Average magnitude of the state channels and residual updates in active cells ove
 </figure></p>
 <p>The figure above shows the evolution, over time, of the average magnitude of the state values of active cells (solid line), and the average magnitude of the residual updates for the active cells firing at each timestamp (dotted line). We can observe two important properties of our model: the average magnitude of each cell’s internal states looks suspiciously like it’s somewhat unbounded in its growth (at least in the time-scales in our experiments), and the average magnitude of the residual updates does not change significantly over time. We theorize a successful CA model should stabilize the magnitude of its internal states once cells find agreement.</p>
 
-<p><strong>Change the loss to $L_2$: </strong>Cross-entropy loss inherently encourages the logits of the correct class to continually be pushed indefinitely higher than other predicted classes. Furthermore, we theorize that having high magnitude in the classification channels may in turn lead the remaining channels to adapt to a high magnitude regime. This, combined with a lack of a shared reference range for the target labels may make it difficult for the digits to stabilize. We instead train our model with a pixel-wise $L_2$ loss with regards to one-hot vectors with the correct label arbitrarily set to $1.0$. Intuitively, the solution should be more stable since the raw outputs are encouraged to stay close to the range $[0, 1]$, and a properly classified digit in a cell will have exactly one output set to 1 and the rest to 0. Therefore, an $L_2$ loss should decrease the magnitude of all internal states and give an absolute reference range for the target labels. Absolute reference ranges can in turn aid with stabilising the internal states, once an agreement is reached.</p>
-
+<p><strong>Change the loss to $L_2$</strong><strong>: </strong>Employing cross-entropy loss encourages the raw logit values corresponding to the correct class to be pushed indefinitely high. Furthermore, two sets of logits can have vastly different values, but essentially the same prediction over classes. As such, training the CA with cross-entropy loss neither requires nor encourages a shared reference range for logit values inside one cell and between different cells, making it difficult for the cells to effectively communicate and stabilize. Finally, we theorize that large magnitudes in the classification channels may in turn lead the remaining, non-classification, state channels to adapt to a high magnitude regime. More specifically, we believe that cross-entropy loss pushes classification logits higher, which depend on the recurrent residual update, which depend on the incoming state channel values, leading to these other state channel values being pushed higher as well. With these problems in mind, we instead try training our model with a pixel-wise $L_2$ loss with regards to one-hot vectors with the correct label arbitrarily set to $1.0$. Intuitively, this solution should be more stable since the raw state channels for classification are encouraged to stay close to the range $[0, 1]$, and a properly classified digit in a cell will have exactly one classification channel set to 1 and the rest to 0. Given our assumption of state channel magnitudes correlating with classification channel magnitude, an $L_2$ loss should decrease the magnitude of all the internal state channels while allowing a shared reference range for the classification channels. </p>
 
 <p><strong>Add noise to the residual</strong>: A key idea in most schemes of regularization is to inject noise to make a classifier or model more robust.  We introduce noise sampled from a normal distribution with zero mean and 0.02 standard-deviation to the residual updates. The noise is added before the random mask of updates.</p>
 <p><figure>

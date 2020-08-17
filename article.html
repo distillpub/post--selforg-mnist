@@ -51,7 +51,7 @@ A visualisation of a random sample of digits from MNIST, each shaded by the colo
 A first attempt at having the neural CAs classify digits. Each digit is a separate evolution of the neural CA, with the visualisations collated. Halfway through, the underlying digit is swapped for a new one - a "mutation".</figcaption>
 </figure></p>
 
-<p>The video above shows the CA classifying a batch of digits for 200 steps. THe digits are then mutated, and we let the system evolve and classify for a further 200 more steps.</p>
+<p>The video above shows the CA classifying a batch of digits for 200 steps. The digits are then mutated, and we let the system evolve and classify for a further 200 more steps.</p>
 
 <p>The results look promising overall, and we can see how our CAs are able to recover from mutations. However, keen readers may notice there is often a lack of total agreement between the cells. Often, the majority of the digit is classified correctly, but some outlier cells are still convinced they are part of a different digit, often switching back and forth in an oscillating pattern, creating a flickering effect in the visualization. However - our goal is stable, and total, agreement amongst the cells. The next experiment investigates this undesired behaviour.</p>
 <h2 id='experiment-2'>Experiment 2: Solving the flickery regression</h2>

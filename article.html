@@ -146,7 +146,7 @@ Comparison of average accuracy and total agreement
 <figcaption style="">
 Average magnitude of state channels over time for $L_2$ loss and cross-entropy loss.</figcaption>
 </figure></p>
-<p>Let’s compare the internal states of the augmented model to those of the original. The figure above shows how switching to an $L_2$ loss stabilizes the magnitude of the states, and how residual updates quickly decay to small values as the system nears agreement</p>
+<p>Let’s compare the internal states of the augmented model to those of the original. The figure above shows how switching to an $L_2$ loss stabilizes the magnitude of the states, and how residual updates quickly decay to small values as the system nears agreement.</p>
 
 <p><figure>
 <div class="vc">
@@ -159,7 +159,7 @@ Average magnitude of state channels over time for $L_2$ loss and cross-entropy l
 <figcaption style="">
 Visualisation of internal state channel values during mutations. Note the accelerated timeline after a few seconds showing the relative stability of the channel values.</figcaption>
 </figure></p>
-<p>To further validate our results, we can visualize the dynamics of the internal states of the final model. For visualization purposes, we have squashed the internal state values using arctan, as most state values are less than one but a few are quite large. The states converge to stable configurations quickly and the state channels exhibit spatial continuity with the neighbouring states. More specifically, we don’t see any stark discontinuities in state values of neighbouring pixels. Applying a mutation causes the CA to readapt to the new shape and form a new classification in just a few steps, after which its internal values are stable.</p>
+<p>To further validate our results, we can visualize the dynamics of the internal states of the final model. For visualization purposes, we have squashed the internal state values using  by applying $arctan$ element-wise, as most state values are less than one but a few are quite large. The states converge to stable configurations quickly and the state channels exhibit spatial continuity with the neighbouring states. More specifically, we don’t see any stark discontinuities in state values of neighbouring pixels. Applying a mutation causes the CA to readapt to the new shape and form a new classification in just a few steps, after which its internal values are stable.</p>
 <h2 id='robustness'>Robustness</h2>
 <p>Recall that during training we used random digit mutations to ensure that the resulting CA would be responsive to external changes. This allowed us to learn a dynamical system of agents which interact to produce stable behavior at the population level, even when perturbed to form a different digit from the original. Biologically, this model helps us understand the mutation insensitivity of some large-scale anatomical control mechanisms. For example, planaria continuously accumulate mutations over millions of years of somatic inheritance but still always regenerate the correct morphology in nature (and exhibit no genetic strains with new morphologies) <d-cite key="LEVIN2019125"></d-cite>. </p>
 

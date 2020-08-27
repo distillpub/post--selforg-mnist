@@ -30,7 +30,7 @@ export function mnistDemo(divId, canvasId) {
   let paused = false;
   let visibleChannel = -1;
   let firingChance = 0.5;
-  let drawRadius = 2.5;
+  let drawRadius = 2.0;
   const colors = [
       [128, 0, 0],
       [230, 25, 75],

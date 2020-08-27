@@ -66,6 +66,97 @@
   </d-front-matter>
 
   <style>
+        /* ****************************************
+       * Thread Info
+       ******************************************/
+
+       .thread-info {
+      background-color: hsl(54, 78%, 96%);
+      border-left: solid hsl(54, 33%, 67%) 1px;
+      padding: 1em;
+      color: hsla(0, 0%, 0%, 0.67);
+    }
+
+    #thread-nav {
+      margin-top: 20;
+      margin-bottom: 1.5rem;
+      display: grid;
+      grid-template-columns: 45px 2fr 3fr;
+      grid-template-areas:
+        'thread-icon explanation explanation '
+        'thread-icon prev next';
+      grid-column-gap: 1.5em;
+    }
+
+    @media (min-width: 768px) {
+      #thread-nav {
+        grid-template-columns: 65px 3fr 2fr;
+      }
+    }
+
+    #thread-nav .thread-icon {
+      grid-area: thread-icon;
+      padding: 0.5em;
+      justify-self: center;
+    }
+
+    #thread-nav .explanation {
+      grid-area: explanation;
+      font-size: 85%;
+      color: hsl(0, 0%, 0.33);
+    }
+
+    #thread-nav .prev {
+      grid-area: prev;
+    }
+
+    #thread-nav .prev::before {
+      content: '← Previous Article';
+    }
+
+    #thread-nav .overview {
+      scroll-behavior: smooth;
+    }
+
+    #thread-nav .overview::before {
+      content: '↑';
+      white-space: nowrap;
+      margin-right: 0.5em;
+    }
+
+    #thread-nav .next {
+      grid-area: next;
+      scroll-behavior: smooth;
+    }
+
+    #thread-nav .next::before {
+      content: 'Next Article →';
+    }
+
+    #thread-nav .next::before,
+    #thread-nav .prev::before {
+      display: block;
+      white-space: nowrap;
+      padding: 0.5em 0;
+      font-size: 80%;
+      font-weight: bold;
+      margin-top: 0px;
+      margin-right: 0.5em;
+      text-transform: uppercase;
+    }
+
+    #thread-nav .prev,
+    #thread-nav .next,
+    #thread-nav .overview {
+      font-size: 80%;
+      line-height: 1.5em;
+      font-weight: 600;
+      border-bottom: none;
+      color: #2e6db7;
+      /* margin-top: 0.25em; */
+      letter-spacing: 0.25px;
+    }
+
     figure {
       text-align: center;
       margin-bottom: 0.5em;
@@ -690,6 +781,29 @@ input[type="radio"] {
     <div><a href="#discussion">Discussion</a></div>
   </nav>
 </d-contents>
+
+<section
+  id="thread-nav"
+  class="thread-info"
+  style="margin-top: 10px; margin-bottom: 40px"
+>
+  <img
+    class="thread-icon"
+    src="images/multiple-pages.svg"
+    width="43px"
+    height="50px"
+  />
+  <p class="explanation">
+    This article is part of the
+    <a href="/2020/selforg/">Differentiable Self-organizing Systems Thread</a>,
+    an experimental format collecting invited short articles delving into
+    differentiable self-organizing systems, interspersed with critical
+    commentary from several experts in adjacent fields.
+  </p>
+  <a class="prev" href="/2020/growing-ca/"
+    >Growing Neural Cellular Automata</a
+  >
+</section>
 <p>Growing Neural Cellular Automata <d-cite key="mordvintsev2020growing"></d-cite> demonstrated how simple cellular automata (CAs) can learn to self-organise into complex shapes while being resistant to perturbations. Such a computational model approximates a solution to an open question in biology, namely, how do cells cooperate to create a complex multicellular anatomy and work to regenerate it upon damage? The model parameterizing the cells’ rules is parameter-efficient, end-to-end differentiable, and illustrates a new approach to modeling the regulation of anatomical homeostasis. In this work, we use a version of this model to show how CAs can be applied to a common task in machine learning: classification. We pose the question: <i>can CAs use local message passing to achieve global agreement </i><i>on</i><i> what digit they compose?</i></p>
 <p>
 Our question is closely related to another unsolved problem in developmental and regenerative biology: how cell groups decide whether an organ or tissue pattern is correct, or whether current anatomy needs to be remodeled (anatomical surveillance and repair toward a specific target morphology). For example, when scientists surgically transplanted a salamander tail to its flank, it slowly remodeled into a limb - the organ that belongs at this location <d-cite key="farinella-ferruzza_1956"></d-cite>. Similarly, tadpoles with craniofacial organs in the wrong positions usually become normal frogs because they remodel their faces, placing the eye, mouth, nostrils, etc. in their correct locations. Cell groups move around and stop when the correct frog-specific anatomical configuration has been achieved  <d-cite key="vandenberg_adams_levin_2012"></d-cite>. All of these examples illustrate the ability of biological systems to determine their current anatomical structure and decide whether it matches a species-specific target morphology <d-cite key="pezzulo_levin_2016"></d-cite>. Despite the recent progress in molecular biology of genes necessary for this process, there is still a fundamental knowledge gap concerning the algorithms sufficient for cell collectives to measure and classify their own large-scale morphology. More broadly, it is important to create computational models of swarm intelligence that explicitly define and distinguish the dynamics of the basal cognition of single cells versus cell collectives <d-cite key="Baluska_Levin_2016"></d-cite><d-cite key="Lyon_2006"></d-cite>. </p>
@@ -932,7 +1046,28 @@ These phenomena are important in biology as scientists begin to develop predicti
 
 <p>From a biological perspective, our work shows we can teach things to a collective of cells that they could not learn individually (by training or engineering a single cell). Training cells in unison (while communicating with each other) allows them to learn more complex behaviour than any attempt to train them one by one, which has important implications for strategies in regenerative medicine. The current focus on editing individual cells at the genetic or molecular signaling level faces fundamental barriers when trying to induce desired complex, system-level outcomes (such as regenerating or remodeling whole organs). The inverse problem of determining which cell-level rules (e.g., genetic information) must be changed to achieve a global outcome is very difficult. In contrast and complement to this approach, we show the first component of a roadmap toward developing effective strategies for communication with cellular collectives. Future advances in this field may be able to induce desired outcomes by using stimuli at the system’s input layer (experience), not hardware rewiring, to re-specify outcomes at the tissue, organ, or whole-body level <d-cite key="Mathews_Levin_2018"></d-cite><d-cite key="Pezzulo_Levin_2015"></d-cite>.</p>
 
-</d-article>
+<section
+  id="thread-nav"
+  class="thread-info"
+  style="margin-top: 10px; margin-bottom: 40px"
+>
+  <img
+    class="thread-icon"
+    src="images/multiple-pages.svg"
+    width="43px"
+    height="50px"
+  />
+  <p class="explanation">
+    This article is part of the
+    <a href="/2020/selforg/">Differentiable Self-organizing Systems Thread</a>,
+    an experimental format collecting invited short articles delving into
+    differentiable self-organizing systems, interspersed with critical
+    commentary from several experts in adjacent fields.
+  </p>
+  <a class="prev" href="/2020/growing-ca/"
+    >Growing Neural Cellular Automata</a
+  >
+</section></d-article>
 <d-appendix>
 <h3>Acknowledgments</h3>
 <p>We thank Zhitao Gong, Alex Groznykh, Nick Moran, Peter Whidden for their valuable conversations and feedback.</p>
